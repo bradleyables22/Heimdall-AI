@@ -1,0 +1,62 @@
+---
+description: Heimdall HTML-first ASP.NET Core authoring guidance
+globs: **/*.cs,**/*.cshtml,**/*.html
+alwaysApply: false
+---
+
+# Heimdall Authoring
+
+Use this rule when editing Heimdall applications.
+
+Heimdall is HTML-first. Prefer:
+
+- `IHtmlContent` render functions.
+- `FluentHtml` for markup.
+- `HeimdallHtml` and `.Heimdall()` for behavior attributes.
+- `[ContentInvocation]` methods for server-side interactions.
+- HTML fragments as responses, not JSON UI state.
+- Bifrost for server-sent event HTML streaming.
+- `Heimdall.Bootstrap` typed helpers for Bootstrap classes.
+
+Common imports:
+
+```csharp
+using Heimdall.Server;
+using Heimdall.Server.Rendering;
+using Microsoft.AspNetCore.Html;
+using Bs = Heimdall.Bootstrap.Bootstrap;
+```
+
+Interaction example:
+
+```csharp
+button.Heimdall()
+    .Click("orders.refresh")
+    .PayloadEmptyObject()
+    .Target("#orders-list")
+    .SwapOuter()
+    .Disable();
+```
+
+Action example:
+
+```csharp
+[ContentInvocationPrefix("orders")]
+public sealed class OrderActions(IOrderRepository orders)
+{
+    [ContentInvocation("refresh")]
+    public async Task<IHtmlContent> Refresh(CancellationToken ct)
+    {
+        return OrderList.Render(await orders.GetRecentAsync(ct));
+    }
+}
+```
+
+Load the Heimdall.AI canonical references for full details:
+
+- `canonical/references/app-structure.md`
+- `canonical/references/fluent-html.md`
+- `canonical/references/content-actions.md`
+- `canonical/references/response-directives.md`
+- `canonical/references/bifrost-sse.md`
+- `canonical/references/bootstrap-helpers.md`
