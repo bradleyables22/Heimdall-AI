@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Pages"
+  short_description: "Map Heimdall pages and middleware"
+  default_prompt: "Use $heimdall-pages-routing-middleware to map Heimdall pages and middleware."

@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Migration"
+  short_description: "Migrate ASP.NET UI to Heimdall"
+  default_prompt: "Use $heimdall-migration to migrate ASP.NET UI to Heimdall."

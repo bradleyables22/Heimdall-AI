@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Payloads"
+  short_description: "Choose and bind Heimdall payloads"
+  default_prompt: "Use $heimdall-payloads to choose and bind Heimdall payloads."

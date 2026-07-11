@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Forms"
+  short_description: "Build server-driven Heimdall forms"
+  default_prompt: "Use $heimdall-forms to build server-driven Heimdall forms."

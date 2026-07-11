@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall JS Interop"
+  short_description: "Invoke explicit browser functions"
+  default_prompt: "Use $heimdall-javascript-interop to invoke explicit browser functions."

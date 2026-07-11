@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall JS Runtime"
+  short_description: "Reason about Heimdall browser runtime"
+  default_prompt: "Use $heimdall-javascript-runtime to reason about Heimdall browser runtime."

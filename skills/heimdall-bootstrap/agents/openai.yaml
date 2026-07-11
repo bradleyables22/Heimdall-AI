@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Bootstrap"
+  short_description: "Style Heimdall UI with typed Bootstrap helpers"
+  default_prompt: "Use $heimdall-bootstrap to style Heimdall UI with typed Bootstrap helpers."

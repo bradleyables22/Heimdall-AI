@@ -1,4 +1,0 @@
-interface:
-  display_name: "Heimdall"
-  short_description: "Build Heimdall HTML-first ASP.NET systems"
-  default_prompt: "Use $heimdall to build or modify a Heimdall HTML-first ASP.NET system."

@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Assets"
+  short_description: "Work with Heimdall assets and templates"
+  default_prompt: "Use $heimdall-assets-templates to work with Heimdall assets and templates."

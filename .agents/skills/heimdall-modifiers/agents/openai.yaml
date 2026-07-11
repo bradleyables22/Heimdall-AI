@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Modifiers"
+  short_description: "Refine Heimdall trigger behavior"
+  default_prompt: "Use $heimdall-modifiers to refine Heimdall trigger behavior."

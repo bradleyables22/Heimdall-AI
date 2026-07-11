@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Runtime"
+  short_description: "Configure Heimdall server and browser runtime"
+  default_prompt: "Use $heimdall-configuration-runtime to configure Heimdall server and browser runtime."

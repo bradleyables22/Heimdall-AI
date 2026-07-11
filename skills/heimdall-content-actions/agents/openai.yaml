@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Actions"
+  short_description: "Wire Heimdall content actions"
+  default_prompt: "Use $heimdall-content-actions to wire Heimdall content actions."

@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall MVC"
+  short_description: "Integrate Heimdall with MVC and Razor"
+  default_prompt: "Use $heimdall-mvc-integration to integrate Heimdall with MVC and Razor."

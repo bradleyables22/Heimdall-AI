@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Bifrost SSE"
+  short_description: "Stream live Heimdall HTML updates"
+  default_prompt: "Use $heimdall-bifrost-sse to stream live Heimdall HTML updates."

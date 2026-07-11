@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Polling"
+  short_description: "Build Heimdall polling refreshes"
+  default_prompt: "Use $heimdall-polling to build Heimdall polling refreshes."

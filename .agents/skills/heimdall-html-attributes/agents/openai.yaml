@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Attributes"
+  short_description: "Write and debug Heimdall HTML attributes"
+  default_prompt: "Use $heimdall-html-attributes to write and debug Heimdall HTML attributes."

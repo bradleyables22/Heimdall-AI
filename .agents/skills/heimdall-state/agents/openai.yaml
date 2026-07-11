@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall State"
+  short_description: "Model Heimdall DOM-adjacent state"
+  default_prompt: "Use $heimdall-state to model Heimdall DOM-adjacent state."

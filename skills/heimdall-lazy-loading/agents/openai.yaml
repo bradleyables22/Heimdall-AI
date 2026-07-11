@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Lazy Loading"
+  short_description: "Lazy-load Heimdall fragments"
+  default_prompt: "Use $heimdall-lazy-loading to lazy-load Heimdall fragments."

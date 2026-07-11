@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall SSG"
+  short_description: "Generate static Heimdall sites"
+  default_prompt: "Use $heimdall-static-site-generation to generate static Heimdall sites."

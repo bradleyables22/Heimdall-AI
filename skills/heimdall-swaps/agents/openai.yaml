@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Swaps"
+  short_description: "Choose Heimdall DOM swap behavior"
+  default_prompt: "Use $heimdall-swaps to choose Heimdall DOM swap behavior."

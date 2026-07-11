@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Review"
+  short_description: "Review Heimdall code for correctness"
+  default_prompt: "Use $heimdall-review to review Heimdall code for correctness."

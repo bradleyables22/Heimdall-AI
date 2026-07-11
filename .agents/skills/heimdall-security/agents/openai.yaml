@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Security"
+  short_description: "Review Heimdall security concerns"
+  default_prompt: "Use $heimdall-security to review Heimdall security concerns."

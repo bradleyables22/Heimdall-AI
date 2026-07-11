@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall FluentHtml"
+  short_description: "Write Heimdall server-rendered markup"
+  default_prompt: "Use $heimdall-fluent-html to write Heimdall server-rendered markup."
