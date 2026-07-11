@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "heimdall-ai",
+  "displayName": "Heimdall.AI",
+  "description": "Agent Skills for building Heimdall HTML-first ASP.NET Core systems.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Heimdall.AI"
+  },
+  "repository": "https://github.com/bradleyables22/Heimdall-AI",
+  "homepage": "https://github.com/bradleyables22/Heimdall-AI",
+  "license": "Unlicensed"
+}
