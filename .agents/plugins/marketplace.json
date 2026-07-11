@@ -1,0 +1,20 @@
+{
+  "name": "heimdall-ai-local",
+  "interface": {
+    "displayName": "Heimdall.AI Local"
+  },
+  "plugins": [
+    {
+      "name": "heimdall-ai",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Development"
+    }
+  ]
+}

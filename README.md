@@ -57,8 +57,11 @@ Together, these skills teach agents the Heimdall authoring model:
 ```text
 .agents/
   skills/                   Project-discovery mirror for .agents-aware clients.
+  plugins/marketplace.json  Repo-local ChatGPT/Codex plugin marketplace.
 .claude-plugin/
   plugin.json               Claude Code plugin metadata.
+.codex-plugin/
+  plugin.json               ChatGPT/Codex plugin metadata.
 examples/                   Small Heimdall examples shared by the pack.
 skills/
   heimdall-*/               Source skills used for packaging and install.
@@ -92,6 +95,16 @@ During local development:
 ```powershell
 claude --plugin-dir .
 ```
+
+For ChatGPT Work/Codex plugin testing, this repository includes:
+
+```text
+.codex-plugin/plugin.json
+.agents/plugins/marketplace.json
+skills/
+```
+
+After opening this repo in the ChatGPT desktop app, the local marketplace can expose the `heimdall-ai` plugin for install from the plugin directory.
 
 For direct project-skill installation, copy the desired `skills/heimdall-*` folders into the target platform's skills directory. Common destinations include:
 
