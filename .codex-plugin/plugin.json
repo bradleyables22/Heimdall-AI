@@ -1,9 +1,9 @@
 {
   "name": "heimdall-ai",
-  "version": "0.1.0",
-  "description": "Focused Agent Skills for building Heimdall HTML-first ASP.NET Core systems.",
+  "version": "0.1.0+codex.20260711015438",
+  "description": "Focused skills for building Heimdall HTML-first ASP.NET Core systems.",
   "author": {
-    "name": "Heimdall.AI"
+    "name": "Heimdall"
   },
   "homepage": "https://github.com/bradleyables22/Heimdall-AI",
   "repository": "https://github.com/bradleyables22/Heimdall-AI",
@@ -16,10 +16,10 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Heimdall.AI",
-    "shortDescription": "Focused Heimdall ASP.NET Core skills",
-    "longDescription": "A focused Agent Skills pack for building, migrating, reviewing, and maintaining Heimdall HTML-first ASP.NET Core systems.",
-    "developerName": "Heimdall.AI",
+    "displayName": "Heimdall",
+    "shortDescription": "HTML-first ASP.NET Core skills",
+    "longDescription": "Focused Agent Skills for building, migrating, reviewing, and maintaining Heimdall HTML-first ASP.NET Core systems.",
+    "developerName": "Heimdall",
     "category": "Development",
     "capabilities": [
       "Read",
@@ -27,10 +27,16 @@
     ],
     "websiteURL": "https://github.com/bradleyables22/Heimdall-AI",
     "defaultPrompt": [
-      "Use Heimdall.AI to build a Heimdall HTML-first ASP.NET Core feature.",
-      "Use Heimdall.AI to review Heimdall code for correctness and framework fit.",
-      "Use Heimdall.AI to migrate an ASP.NET Core interaction to Heimdall."
+      "Build a Heimdall HTML-first ASP.NET Core feature.",
+      "Review Heimdall code for framework correctness.",
+      "Migrate an ASP.NET Core interaction to Heimdall."
     ],
-    "brandColor": "#3B82F6"
+    "brandColor": "#27B7F5",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png",
+    "screenshots": [
+      "./assets/screenshot1.png"
+    ]
   }
 }

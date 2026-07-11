@@ -1,7 +1,7 @@
 {
-  "name": "heimdall-ai-local",
+  "name": "heimdall-local",
   "interface": {
-    "displayName": "Heimdall.AI Local"
+    "displayName": "Heimdall Local"
   },
   "plugins": [
     {
