@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "heimdall-ai",
-  "displayName": "Heimdall",
-  "description": "Focused skills for building Heimdall HTML-first ASP.NET Core systems.",
+  "displayName": "Heimdall UI Framework",
+  "description": "Focused skills for building with the Heimdall UI Framework.",
   "version": "0.1.0",
   "author": {
     "name": "Heimdall"

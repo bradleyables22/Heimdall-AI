@@ -1,6 +1,6 @@
 # Contributing
 
-Heimdall Skills is a skills-first repository. Changes should preserve the native Agent Skills layout and keep platform-specific metadata lightweight.
+Heimdall UI Framework Skills is a skills-first repository. Changes should preserve the native Agent Skills layout and keep platform-specific metadata lightweight.
 
 ## Editing Rules
 

@@ -1,6 +1,6 @@
-# Heimdall Skills
+# Heimdall UI Framework Skills
 
-Heimdall Skills is an Agent Skills pack for building Heimdall HTML-first ASP.NET Core systems with skills-compatible AI coding agents.
+Heimdall UI Framework Skills is an Agent Skills pack for building Heimdall HTML-first ASP.NET Core systems with skills-compatible AI coding agents.
 
 The repo follows the Agent Skills shape directly: each capability is a folder with its own `SKILL.md`. The pack is split into narrow Heimdall skills so agents can route to the exact area they need instead of loading one broad internal manual.
 
