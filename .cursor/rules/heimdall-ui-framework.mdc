@@ -1,0 +1,29 @@
+---
+description: Heimdall UI Framework Agent Skills pack maintenance and usage
+globs: **/*
+alwaysApply: false
+---
+
+# Heimdall UI Framework Skills
+
+Use this rule when editing this skills repository or when a task asks about the Heimdall UI Framework skills pack.
+
+This repository is a native Agent Skills pack. The source skills live under `skills/`, and each `heimdall-*` directory contains a focused `SKILL.md`.
+
+When editing the pack:
+
+- Edit `skills/` first.
+- Keep `.agents/skills/` synchronized with `skills/`.
+- Keep `.github/skills/` synchronized with `skills/`.
+- Keep skill names lowercase, hyphenated, and matching their parent directory.
+- Keep each skill focused on one Heimdall area.
+- Avoid helper scripts or generated artifacts unless a platform requires them.
+
+When using the pack to work on Heimdall code, prefer the focused skill that matches the task:
+
+- app setup and routing: `heimdall-app-structure`, `heimdall-pages-routing-middleware`
+- markup: `heimdall-fluent-html`, `heimdall-html-attributes`
+- interactions: `heimdall-content-actions`, `heimdall-triggers`, `heimdall-payloads`, `heimdall-swaps`
+- advanced UI behavior: `heimdall-response-directives`, `heimdall-state`, `heimdall-forms`, `heimdall-modifiers`, `heimdall-lazy-loading`, `heimdall-polling`
+- integrations: `heimdall-bifrost-sse`, `heimdall-mvc-integration`, `heimdall-static-site-generation`, `heimdall-bootstrap`
+- quality and adoption: `heimdall-security`, `heimdall-patterns`, `heimdall-migration`, `heimdall-review`

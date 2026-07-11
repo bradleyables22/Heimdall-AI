@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Patterns"
+  short_description: "Choose Heimdall architecture patterns"
+  default_prompt: "Use $heimdall-patterns to choose Heimdall architecture patterns."

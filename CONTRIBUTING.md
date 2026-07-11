@@ -6,6 +6,7 @@ Heimdall UI Framework Skills is a skills-first repository. Changes should preser
 
 - Treat `skills/heimdall-*` as the source skills.
 - Keep `.agents/skills` synchronized with the source skills.
+- Keep `.github/skills` synchronized with the source skills.
 - Keep each `SKILL.md` focused on one Heimdall area.
 - Prefer a new narrow skill over a broad shared reference file when the topic deserves independent routing.
 - Put shared complete examples in `examples/`.
@@ -31,6 +32,7 @@ Before publishing, compare these folders:
 ```text
 skills
 .agents/skills
+.github/skills
 ```
 
 They should contain the same files with the same content.

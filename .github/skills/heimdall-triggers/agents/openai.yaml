@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Triggers"
+  short_description: "Choose Heimdall interaction triggers"
+  default_prompt: "Use $heimdall-triggers to choose Heimdall interaction triggers."

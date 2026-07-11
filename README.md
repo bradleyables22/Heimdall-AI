@@ -62,9 +62,14 @@ Together, these skills teach agents the Heimdall authoring model:
   plugin.json               Claude Code plugin metadata.
 .codex-plugin/
   plugin.json               ChatGPT/Codex plugin metadata.
+.cursor/
+  rules/                    Cursor project rule.
+.github/
+  skills/                   GitHub/Copilot-facing skills mirror.
 examples/                   Small Heimdall examples shared by the pack.
 skills/
   heimdall-*/               Source skills used for packaging and install.
+AGENTS.md                   Cross-agent repository instructions.
 ```
 
 ## Platform Use
@@ -81,6 +86,18 @@ For project-level discovery by OpenAI Codex, VS Code/GitHub Copilot, GitHub Copi
 
 ```text
 .agents/skills/
+```
+
+For GitHub and Copilot users who expect repository customizations under `.github`, this repo also mirrors the skills at:
+
+```text
+.github/skills/
+```
+
+For Cursor, this repo includes:
+
+```text
+.cursor/rules/heimdall-ui-framework.mdc
 ```
 
 For Claude Code, this repository can be loaded as a plugin because it includes:
@@ -117,6 +134,6 @@ For direct project-skill installation, copy the desired `skills/heimdall-*` fold
 
 ## Maintenance
 
-Edit the source skills under `skills/`. Keep `.agents/skills` synchronized when source skills change so clients that discover project skills from `.agents/skills` see the same content.
+Edit the source skills under `skills/`. Keep `.agents/skills` and `.github/skills` synchronized when source skills change so clients that discover project skills from either location see the same content.
 
 When changing guidance, prefer creating or improving a focused `heimdall-*` skill over adding a large shared reference file. Each skill should be useful by itself when selected.

@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Directives"
+  short_description: "Return Heimdall response directives"
+  default_prompt: "Use $heimdall-response-directives to return Heimdall response directives."

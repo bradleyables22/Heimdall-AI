@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall Getting Started"
+  short_description: "Start a Heimdall app and first interaction"
+  default_prompt: "Use $heimdall-getting-started to start a Heimdall app and first interaction."

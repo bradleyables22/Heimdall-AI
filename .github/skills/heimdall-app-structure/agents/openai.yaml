@@ -1,0 +1,4 @@
+﻿interface:
+  display_name: "Heimdall App Structure"
+  short_description: "Set up Heimdall ASP.NET apps"
+  default_prompt: "Use $heimdall-app-structure to set up Heimdall ASP.NET apps."
