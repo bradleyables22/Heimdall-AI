@@ -30,6 +30,9 @@ event -> server action -> HTML -> targeted DOM update
 - Dynamic or user-provided strings use `.Text(...)`.
 - `.Raw(...)` is limited to trusted static markup such as `<!DOCTYPE html>`.
 - Rendering modules stay as ordinary C# functions, not Razor components or SPA state machines.
+- App-owned CSS classes are typed constants near the owning component, such as `NotesPanel.Css.Root`.
+- Framework classes use typed helpers such as `Bootstrap.*` when available.
+- Repeated raw app class strings are treated as maintainability issues.
 
 ## Interactions
 
@@ -53,6 +56,13 @@ event -> server action -> HTML -> targeted DOM update
 - Dependencies are supplied by constructor injection, implicit service parameters, or `[FromServices]`.
 - Long-running actions honor `CancellationToken` and request timeout metadata.
 - Authorization uses ASP.NET Core metadata such as `[Authorize]`.
+- Actions are colocated with the rendered component or partial they primarily update.
+- Component-owned actions use a nested `ComponentNameActions` class, split to `Component.Actions.cs` with partial classes when needed.
+- Static action methods are limited to tiny, pure, or demo interactions.
+- Real persistence, repositories, Bifrost, MVC rendering, logging, and other services use instance action classes with constructor DI.
+- Top-level action classes are reserved for cross-component or domain workflows.
+- MVC controller-local content methods use `[NonAction]` as a safety convention.
+- Static mutable state is flagged unless it is clearly demo-only.
 
 ## Response Directives
 
@@ -77,4 +87,5 @@ event -> server action -> HTML -> targeted DOM update
 - Server rendering owns UI state wherever practical.
 - JavaScript stays small and explicit.
 - MVC controllers are not used as the normal route for Heimdall content actions.
+- Component or partial boundaries own their host IDs, action IDs, payload models, CSS constants, render methods, and local actions.
 - SPA shells are introduced only when explicitly requested.

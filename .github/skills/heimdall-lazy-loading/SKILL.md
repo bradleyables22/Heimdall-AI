@@ -44,13 +44,20 @@ sentinel.Heimdall()
 ## Action
 
 ```csharp
-[ContentInvocation("recommendations.load")]
-public static async Task<IHtmlContent> LoadRecommendations(
-    IRecommendationService recommendations,
-    CancellationToken ct)
+public static partial class RecommendationPanel
 {
-    var items = await recommendations.GetAsync(ct);
-    return RecommendationPanel.Render(items);
+    public const string HostId = "recommendations";
+
+    [ContentInvocationPrefix("recommendations")]
+    public sealed class RecommendationPanelActions(IRecommendationService recommendations)
+    {
+        [ContentInvocation("load")]
+        public async Task<IHtmlContent> Load(CancellationToken ct)
+        {
+            var items = await recommendations.GetAsync(ct);
+            return RecommendationPanel.Render(items);
+        }
+    }
 }
 ```
 
@@ -62,4 +69,5 @@ public static async Task<IHtmlContent> LoadRecommendations(
 - Use `VisibleOnce()` when a region should not repeatedly load.
 - Return HTML fragments, not JSON.
 - Keep lazy-loaded targets stable.
+- Keep lazy-load actions beside the component or sentinel they replace or append to.
 - Do not lazy-load critical content needed for first meaningful render unless there is a good reason.

@@ -33,6 +33,16 @@ Content actions are interaction-level rendering:
 - typically swapped into an existing target
 - serve interaction flows instead of route-level page loads
 
+## Component Boundaries
+
+Treat a component or fragment host as the normal ownership boundary for interactions.
+
+- Keep `HostId`, `ActionIds`, local payload/state models, CSS class constants, render methods, and `ComponentNameActions` together.
+- Let the action return the component or fragment it owns.
+- Use partial files such as `NotesPanel.Actions.cs`, `NotesPanel.Models.cs`, and `NotesPanel.Css.cs` when the component grows.
+- Move actions out to a top-level domain class only when the workflow spans multiple components or no single component owns the target.
+- In MVC-heavy apps, controller-local actions are acceptable when the controller/view owns the interaction.
+
 ## Form Validation
 
 Use a form boundary, closest-form payload, a content action, and returned HTML.
@@ -78,6 +88,8 @@ In MVC-heavy apps:
 - Keep server rendering as the source of truth.
 - Return HTML fragments for UI changes.
 - Use stable target IDs.
+- Keep actions close to the rendered component or partial they update.
+- Use typed constants for app-owned CSS class names and action IDs.
 - Use response directives for coordinated updates.
 - Use JavaScript only for explicit browser effects.
 - Avoid JSON-first UI interactions unless there is a non-Heimdall API consumer.

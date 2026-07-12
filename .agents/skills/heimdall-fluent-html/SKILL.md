@@ -21,14 +21,23 @@ using Microsoft.AspNetCore.Html;
 ## Core Pattern
 
 ```csharp
-public static IHtmlContent Render()
-    => FluentHtml.Section(section =>
+public static partial class ProfilePanel
+{
+    public static class Css
     {
-        section.Id("profile")
-            .Class("panel")
-            .H2(h => h.Text("Profile"))
-            .P(p => p.Text("Server-rendered HTML."));
-    });
+        public const string Root = "profile-panel";
+        public const string Header = "profile-panel__header";
+    }
+
+    public static IHtmlContent Render()
+        => FluentHtml.Section(section =>
+        {
+            section.Id("profile")
+                .Class(Css.Root)
+                .H2(h => h.Text("Profile"))
+                .P(p => p.Text("Server-rendered HTML."));
+        });
+}
 ```
 
 Most element helpers accept a builder callback:
@@ -68,6 +77,30 @@ b.Text(order.Name)
 b.Content(OrderSummary.Render(order))
 b.Raw("<!DOCTYPE html>")
 ```
+
+## CSS Class Names
+
+Use typed constants for app-owned CSS classes. Keep them near the component that renders the markup:
+
+```csharp
+public static partial class NotesPanel
+{
+    public static class Css
+    {
+        public const string Root = "notes-panel";
+        public const string Empty = "notes-panel__empty";
+    }
+
+    public static IHtmlContent Render(NotesModel model)
+        => FluentHtml.Div(panel =>
+        {
+            panel.Class(Css.Root);
+            panel.Div(empty => empty.Class(Css.Empty).Text("No notes yet."));
+        });
+}
+```
+
+Use raw class strings sparingly for one-off values. Prefer `Component.Css.*` for repeated project classes and framework helpers such as `Bootstrap.*` for framework classes.
 
 Boolean attributes:
 

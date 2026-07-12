@@ -45,17 +45,23 @@ div.Heimdall()
 Inject or request `Bifrost` from DI. Use `Microsoft.AspNetCore.Mvc` for `[FromServices]`.
 
 ```csharp
-using Microsoft.AspNetCore.Mvc;
-
-[ContentInvocation("orders.publish")]
-public static async Task<IHtmlContent> Publish([FromServices] Bifrost bifrost)
+public static partial class OrderNotifications
 {
-    await bifrost.PublishAsync(
-        topic: "orders",
-        content: OrderToast.Render("Order updated"),
-        ttl: TimeSpan.FromSeconds(10));
+    [ContentInvocationPrefix("orders")]
+    public sealed class OrderNotificationsActions(Bifrost bifrost)
+    {
+        [ContentInvocation("publish")]
+        public async Task<IHtmlContent> Publish(CancellationToken ct)
+        {
+            await bifrost.PublishAsync(
+                topic: "orders",
+                content: OrderToast.Render("Order updated"),
+                ttl: TimeSpan.FromSeconds(10),
+                ct: ct);
 
-    return HtmlString.Empty;
+            return HtmlString.Empty;
+        }
+    }
 }
 ```
 
@@ -112,6 +118,7 @@ If both `BifrostTopicPolicy` and `AuthorizeBifrostTopic` are configured, both mu
 
 - Use SSE for server-initiated updates, live feeds, notifications, dashboards, and progress streams.
 - Publish HTML fragments, not JSON that the client must render.
+- Keep publish actions beside the notification, stream, or live component that owns the topic when practical.
 - Use stable topic names such as `orders`, `alerts`, or `user:{id}:notifications`.
 - Use named events when multiple UI regions share one topic but need different handling.
 - Keep TTLs short enough for stale messages to expire naturally.

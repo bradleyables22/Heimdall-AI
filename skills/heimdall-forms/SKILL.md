@@ -35,6 +35,36 @@ form.Heimdall()
     .PayloadFromClosestForm();
 ```
 
+Prefer owning the form, host IDs, payload model, validation helpers, and content actions from the component that renders the form:
+
+```csharp
+public static partial class ContactForm
+{
+    public const string HostId = "contact-form-host";
+
+    public static class ActionIds
+    {
+        public const string Submit = "contact.submit";
+    }
+
+    public sealed class ContactRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    [ContentInvocationPrefix("contact")]
+    public sealed class ContactFormActions(ContactService contacts)
+    {
+        [ContentInvocation("submit")]
+        public async Task<IHtmlContent> Submit([ContentPayload] ContactRequest request)
+        {
+            var result = await contacts.SubmitAsync(request);
+            return ContactForm.Render(result);
+        }
+    }
+}
+```
+
 ## Traditional Submit
 
 ```csharp
@@ -104,6 +134,9 @@ The action should normalize and validate the submitted values, then return the f
 ## Guidance
 
 - Prefer `PayloadFromClosestForm()` for form submit and validation interactions.
+- Keep form actions beside the component that renders the form when that component owns the target boundary.
+- Use an instance `ComponentNameActions` class with constructor DI for real persistence, email, repository, or validation services.
+- Avoid static mutable collections for submitted data except in tiny demos.
 - Use `PreventDefault()` for Heimdall-handled form submissions.
 - Use `Disable()` to prevent duplicate submissions when appropriate.
 - Return HTML for success and error states.

@@ -70,10 +70,37 @@ public static IHtmlContent Render(IHtmlContent page, string title)
 
 For static generation or subdirectory hosting, use path-base-aware helpers when available, such as `ctx.ToSitePath("/css/site.css")` in static page render callbacks.
 
+## Site CSS
+
+Keep site CSS in normal static assets such as `wwwroot/css/site.css` or component files under `wwwroot/css/components/`.
+
+For app-owned CSS classes, define typed constants near the component that renders them:
+
+```csharp
+public static partial class NotesPanel
+{
+    public static class Css
+    {
+        public const string Root = "notes-panel";
+        public const string Header = "notes-panel__header";
+        public const string Empty = "notes-panel__empty";
+    }
+}
+```
+
+Then use those constants in render functions:
+
+```csharp
+panel.Class(NotesPanel.Css.Root);
+```
+
+Use framework helpers such as `Bootstrap.*` for framework classes. Avoid scattering repeated project-owned class strings through FluentHtml, Razor partials, or response fragments.
+
 ## Guidance
 
 - Use standard ASP.NET Core static asset conventions.
 - Keep layout rendering centralized.
+- Keep app-owned CSS class names typed with component-local constants.
 - Keep asset URLs path-base aware for static/subdirectory deployments.
 - Copy web root and static web assets during SSG when the output needs them.
 - Do not invent custom runtime asset paths.

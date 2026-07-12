@@ -10,3 +10,4 @@
 - Added `AGENTS.md` and a Cursor project rule.
 - Added Claude Code plugin metadata.
 - Added shared Heimdall examples.
+- Added Heimdall-native best-practice guidance for component-owned actions, nested `ComponentNameActions`, and typed component CSS class constants.

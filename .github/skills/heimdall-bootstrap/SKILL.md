@@ -20,18 +20,28 @@ using Bs = Heimdall.Bootstrap.Bootstrap;
 ## Core Pattern
 
 ```csharp
-FluentHtml.Div(div =>
+public static partial class DashboardPanel
 {
-    div.Class(
-        Bs.Layout.Container,
-        Bs.Spacing.Py(4));
-
-    div.H1(h =>
+    public static class Css
     {
-        h.Class(Bs.Text.Lead);
-        h.Text("Dashboard");
-    });
-});
+        public const string Root = "dashboard-panel";
+    }
+
+    public static IHtmlContent Render()
+        => FluentHtml.Div(div =>
+        {
+            div.Class(
+                Css.Root,
+                Bs.Layout.Container,
+                Bs.Spacing.Py(4));
+
+            div.H1(h =>
+            {
+                h.Class(Bs.Text.Lead);
+                h.Text("Dashboard");
+            });
+        });
+}
 ```
 
 Many examples use the alias `Bs`:
@@ -121,10 +131,10 @@ FluentHtml.Div(card =>
 
 ## Raw Escape Hatch
 
-When a Bootstrap class is not covered or a custom class is needed, use `Bs.Raw(...)` or a normal class string:
+When a Bootstrap class is not covered, use `Bs.Raw(...)`. For app-owned CSS, prefer component constants instead of repeated raw strings:
 
 ```csharp
-div.Class(Bs.Raw("display-6"), "app-shell");
+div.Class(Bs.Raw("display-6"), AppShell.Css.Root);
 ```
 
-Prefer typed helpers when available.
+Prefer typed helpers when available. Prefer `Component.Css.*` for project classes and `Bs.*` for Bootstrap classes.

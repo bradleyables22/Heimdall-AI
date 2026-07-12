@@ -134,15 +134,46 @@ Rendering/
   Pages/
     HomePage.cs
     OrdersPage.cs
-  Fragments/
-    OrderList.cs
-Actions/
-  OrderActions.cs
+  Components/
+    NotesPanel/
+      NotesPanel.cs
+      NotesPanel.Actions.cs
+      NotesPanel.Css.cs
+      NotesPanel.Models.cs
 Models/
   OrderFilter.cs
+wwwroot/
+  css/
+    components/
+      notes-panel.css
 ```
 
-Keep rendering close to the UI it represents. Keep content action methods close to the domain interaction they handle.
+Keep rendering close to the UI it represents. Prefer component-owned content actions: if an action mainly updates `NotesPanel`, keep a nested `NotesPanelActions` class in `NotesPanel` or `NotesPanel.Actions.cs`.
+
+Use component-level static classes for local constants:
+
+```csharp
+public static partial class NotesPanel
+{
+    public const string HostId = "notes-panel";
+
+    public static class ActionIds
+    {
+        public const string Create = "notes.create";
+    }
+
+    public static class Css
+    {
+        public const string Root = "notes-panel";
+        public const string Header = "notes-panel__header";
+        public const string List = "notes-panel__list";
+    }
+}
+```
+
+Use typed constants for app-owned CSS class names. Use framework helpers such as `Bootstrap.*` for framework classes. Avoid scattering repeated raw app CSS strings through render methods.
+
+Top-level `Actions/` classes are for cross-component or domain workflows where no single component owns the interaction. MVC-heavy apps may colocate actions on controllers when the controller/view owns the interaction.
 
 ## Static Site Generation
 

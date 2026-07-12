@@ -16,16 +16,25 @@ Response directives are special HTML elements that Heimdall processes before app
 Use out-of-band invocations when a response should update more than one target.
 
 ```csharp
-[ContentInvocation("notes.save")]
-public static IHtmlContent Save(NotePayload payload)
-    => FluentHtml.Fragment(fragment =>
+public static partial class NotesPanel
+{
+    [ContentInvocationPrefix("notes")]
+    public sealed class NotesPanelActions(NoteStore notes)
     {
-        fragment.Add(NotesForm.Render(payload));
-        fragment.Heimdall().Invocation(
-            targetSelector: "#notes-list",
-            swap: HeimdallHtml.Swap.Inner,
-            payload: NotesList.Render(payload.Notes));
-    });
+        [ContentInvocation("save")]
+        public IHtmlContent Save([ContentPayload] NotePayload payload)
+            => FluentHtml.Fragment(fragment =>
+            {
+                var model = notes.Save(payload);
+
+                fragment.Add(NotesForm.Render(model.Form));
+                fragment.Heimdall().Invocation(
+                    targetSelector: "#notes-list",
+                    swap: HeimdallHtml.Swap.Inner,
+                    payload: NotesList.Render(model.Notes));
+            });
+    }
+}
 ```
 
 Static helper form:
@@ -123,3 +132,5 @@ return FluentHtml.Fragment(fragment =>
     fragment.Heimdall().JsInvokeVoidAfter("window.App.analytics.track", "saved");
 });
 ```
+
+Keep directive-heavy actions beside the component that owns the main swap target. Use out-of-band directives for sibling regions, not as an excuse to scatter unrelated UI behavior through a generic action class.

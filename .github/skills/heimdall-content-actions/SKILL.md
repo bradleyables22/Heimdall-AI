@@ -47,28 +47,53 @@ public static IHtmlContent Save([ContentPayload] NotePayload payload)
 }
 ```
 
-Use `[ContentInvocationPrefix]` on action classes:
+Use `[ContentInvocationPrefix]` on action classes. Prefer component-owned action classes when the action primarily updates one rendered component:
 
 ```csharp
-[ContentInvocationPrefix("orders")]
-public sealed class OrderActions(IOrderRepository orders)
+public static partial class NotesPanel
 {
-    [ContentInvocation("filter")]
-    public async Task<IHtmlContent> Filter([ContentPayload] OrderFilter filter, CancellationToken ct)
+    public const string HostId = "notes-panel";
+
+    public static class ActionIds
     {
-        var results = await orders.SearchAsync(filter, ct);
-        return OrderList.Render(results);
+        public const string Create = "notes.create";
     }
 
-    [ContentInvocation]
-    public IHtmlContent Summary()
+    public static IHtmlContent Render(NotesModel model)
     {
-        return OrderSummary.Render(orders.GetSummary());
+        return FluentHtml.Div(panel =>
+        {
+            panel.Id(HostId);
+            // Render form/list markup that calls ActionIds.Create.
+        });
+    }
+
+    [ContentInvocationPrefix("notes")]
+    public sealed class NotesPanelActions(NoteStore notes)
+    {
+        [ContentInvocation("create")]
+        public IHtmlContent Create([ContentPayload] CreateNoteRequest request)
+        {
+            notes.Add(request);
+            return NotesPanel.Render(notes.GetModel());
+        }
     }
 }
 ```
 
-The resolved invocation IDs are `orders.filter` and `orders.Summary`.
+The resolved invocation ID is `notes.create`.
+
+## Where Actions Belong
+
+Default to component-owned actions:
+
+- Put `ComponentNameActions` inside the component class when the action primarily re-renders or mutates that component.
+- Keep action IDs, host IDs, payload models, rendering, and action methods together so the UI boundary evolves as one unit.
+- Split large components with partial files such as `NotesPanel.cs`, `NotesPanel.Actions.cs`, `NotesPanel.Models.cs`, and `NotesPanel.Css.cs` while keeping the nested `NotesPanelActions` type.
+- Use static action methods only for tiny, pure, or demo interactions with no service dependencies.
+- Use an instance `ComponentNameActions` class with constructor DI when the action needs stores, repositories, services, Bifrost, logging, authorization helpers, or MVC rendering.
+- Move actions to a top-level domain action class only when the workflow intentionally spans multiple components or no single UI component owns the interaction.
+- In MVC-heavy apps, controller-local actions are acceptable when the controller/view owns the interaction; use `[NonAction]` as a safety convention.
 
 ## Supported Parameters
 

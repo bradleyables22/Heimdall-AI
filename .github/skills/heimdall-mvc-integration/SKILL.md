@@ -85,21 +85,26 @@ public sealed class OrdersController(
 
 ## Separate Action Classes
 
-Use a separate action class when the controller would become too crowded:
+Use a component- or partial-owned action class when a Razor partial/component owns the interaction better than the controller, or when the controller would become too crowded:
 
 ```csharp
-[ContentInvocationPrefix("orders")]
-public sealed class OrderActions(
-    IOrderRepository orders,
-    IHeimdallMvcRenderer views)
+public static partial class OrdersTable
 {
-    [ContentInvocation("filter")]
-    public async Task<IHtmlContent> FilterRows(
-        OrderFilter filter,
-        CancellationToken ct)
+    public const string HostId = "orders-table";
+
+    [ContentInvocationPrefix("orders")]
+    public sealed class OrdersTableActions(
+        IOrderRepository orders,
+        IHeimdallMvcRenderer views)
     {
-        var results = await orders.SearchAsync(filter, ct);
-        return await views.PartialAsync("_OrderList", results, ct);
+        [ContentInvocation("filter")]
+        public async Task<IHtmlContent> FilterRows(
+            OrderFilter filter,
+            CancellationToken ct)
+        {
+            var results = await orders.SearchAsync(filter, ct);
+            return await views.PartialAsync("_OrderList", results, ct);
+        }
     }
 }
 ```
@@ -123,5 +128,7 @@ public sealed class OrderActions(
 - Use native Heimdall attributes in Razor when FluentHtml would fight the local codebase.
 - Return partial HTML from content actions, not JSON view state.
 - Keep action IDs stable and dotted.
-- Use controller-local actions for discoverability in MVC-heavy apps.
-- Use separate action classes for cross-controller or domain-oriented interactions.
+- Use controller-local actions for discoverability in MVC-heavy apps when the controller/view owns the interaction.
+- Add `[NonAction]` to controller-local content methods as a safety convention.
+- Prefer partial/component-owned action classes when a reusable partial owns the target and render boundary.
+- Use top-level separate action classes only for cross-controller, cross-component, or domain-oriented interactions.
