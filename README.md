@@ -59,6 +59,7 @@ Together, these skills teach agents the Heimdall authoring model:
   skills/                   Project-discovery mirror for .agents-aware clients.
   plugins/marketplace.json  Repo-local ChatGPT/Codex plugin marketplace.
 .claude-plugin/
+  marketplace.json          Claude Code marketplace catalog.
   plugin.json               Claude Code plugin metadata.
 .codex-plugin/
   plugin.json               ChatGPT/Codex plugin metadata.
@@ -103,8 +104,16 @@ For Cursor, this repo includes:
 For Claude Code, this repository can be loaded as a plugin because it includes:
 
 ```text
+.claude-plugin/marketplace.json
 .claude-plugin/plugin.json
 skills/
+```
+
+From Claude Code, add the marketplace and install the plugin:
+
+```text
+/plugin marketplace add bradleyables22/Heimdall-AI
+/plugin install heimdall-ai@heimdall-ui-framework
 ```
 
 During local development:

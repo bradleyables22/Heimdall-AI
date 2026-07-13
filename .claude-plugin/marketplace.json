@@ -1,0 +1,22 @@
+{
+  "name": "heimdall-ui-framework",
+  "description": "Claude Code marketplace for the Heimdall UI Framework skill pack.",
+  "owner": {
+    "name": "Heimdall"
+  },
+  "plugins": [
+    {
+      "name": "heimdall-ai",
+      "displayName": "Heimdall UI Framework",
+      "source": "./",
+      "description": "Focused skills for building with the Heimdall UI Framework.",
+      "category": "Development",
+      "tags": [
+        "heimdall",
+        "aspnet-core",
+        "agent-skills",
+        "html-first"
+      ]
+    }
+  ]
+}

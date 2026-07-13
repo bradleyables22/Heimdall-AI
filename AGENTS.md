@@ -12,6 +12,7 @@ The repo also carries platform discovery mirrors and plugin metadata:
 - `.github/skills/`: GitHub/Copilot-facing mirror for users who expect skills under GitHub configuration.
 - `.codex-plugin/plugin.json`: ChatGPT/Codex plugin metadata.
 - `.claude-plugin/plugin.json`: Claude Code plugin metadata.
+- `.claude-plugin/marketplace.json`: Claude Code marketplace catalog for installing the plugin from this repository.
 - `.cursor/rules/heimdall-ui-framework.mdc`: Cursor project rule that points Cursor toward the skill pack.
 
 ## Editing Rules
@@ -34,6 +35,7 @@ Before finishing a repo change:
 - Confirm JSON manifests parse:
   - `.codex-plugin/plugin.json`
   - `.claude-plugin/plugin.json`
+  - `.claude-plugin/marketplace.json`
   - `.agents/plugins/marketplace.json`
 
 ## Branding
