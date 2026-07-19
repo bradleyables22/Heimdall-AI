@@ -1,6 +1,6 @@
 ---
 name: heimdall-javascript-runtime
-description: Use when reasoning about Heimdall's browser runtime, including runtime script loading, DOM attribute scanning, trigger handling, request lifecycle, swaps, response directive processing, runtime debugging, and lifecycle behavior.
+description: Use when reasoning about Heimdall's browser runtime, including runtime script loading, DOM attribute scanning, trigger handling, synchronized request lifecycle, cancellation and timeouts, swap hooks, response directive processing, runtime debugging, and lifecycle behavior.
 ---
 
 # Heimdall JavaScript Runtime
@@ -31,7 +31,9 @@ Debug build:
 - find Heimdall trigger attributes in rendered DOM
 - listen for trigger events
 - collect payloads
+- coordinate parallel, replace, drop, and queue-latest requests
 - send requests to content actions
+- emit request and swap lifecycle events
 - process response directives
 - apply the configured swap
 - handle SSE messages from Bifrost
@@ -47,7 +49,25 @@ Inspect rendered HTML first:
 4. The payload source can be resolved.
 5. The target selector matches a real element.
 6. The swap mode matches the returned fragment.
-7. The element is not disabled.
+7. The synchronization strategy did not intentionally cancel, drop, or queue the request.
+8. The element is not disabled.
+
+## Request And Swap Hooks
+
+Use the focused `heimdall-request-lifecycle` skill for the complete coordinator contract. The primary integration events are:
+
+```text
+heimdall:request-config
+heimdall:request-before
+heimdall:request-after
+heimdall:request-finally
+heimdall:request-cancel
+heimdall:request-timeout
+heimdall:swap-before
+heimdall:swap-after
+```
+
+`request-before` and `swap-before` are cancellable. Request configuration and pre-swap target/fragment/mode are mutable. Replace-mode stale responses are suppressed before DOM, OOB, JavaScript, or redirect effects.
 
 ## Guidance
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Heimdall Request Lifecycle"
+  short_description: "Coordinate Heimdall browser requests"
+  default_prompt: "Use $heimdall-request-lifecycle to coordinate overlapping Heimdall requests and lifecycle hooks."

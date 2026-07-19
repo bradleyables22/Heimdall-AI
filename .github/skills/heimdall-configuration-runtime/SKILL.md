@@ -1,6 +1,6 @@
 ---
 name: heimdall-configuration-runtime
-description: Use when configuring Heimdall server options or browser runtime behavior, including AddHeimdall settings, runtime script loading, Heimdall.config defaults, detailed errors, endpoint setup, middleware order, and diagnosing runtime boot issues.
+description: Use when configuring Heimdall server options or browser runtime behavior, including AddHeimdall settings, runtime script loading, Heimdall.config defaults, request synchronization and timeout defaults, detailed errors, endpoint setup, middleware order, and diagnosing runtime boot issues.
 ---
 
 # Heimdall Configuration And Runtime
@@ -74,6 +74,17 @@ Prefer local attributes or fluent helpers for:
 
 Use global runtime defaults only when an application-wide default is truly desired.
 
+Request coordination defaults preserve existing behavior:
+
+```javascript
+Heimdall.config.requestSync = "parallel";
+Heimdall.config.requestTimeoutMs = 0;
+```
+
+`parallel` and a timeout of `0` require no migration. Override them per element with `heimdall-sync` and `heimdall-sync-group`, or per programmatic invocation with `sync`, `syncGroup`, `timeoutMs`, and `signal`.
+
+Use `heimdall:request-config`, `heimdall:request-before`, `heimdall:request-after`, `heimdall:request-finally`, `heimdall:request-cancel`, and `heimdall:request-timeout` for request integration. Use the focused `heimdall-request-lifecycle` skill for strategy selection and event ordering.
+
 ## Middleware Order
 
 Use the normal ASP.NET Core ordering rules:
@@ -94,7 +105,8 @@ When an interaction does not fire:
 4. Confirm the payload source points to real data.
 5. Confirm the target selector matches an element.
 6. Confirm the swap mode is valid.
-7. Confirm the element is not disabled or `aria-disabled="true"`.
+7. Confirm synchronization did not intentionally replace, drop, or queue the request.
+8. Confirm the element is not disabled or `aria-disabled="true"`.
 
 ## Guidance
 

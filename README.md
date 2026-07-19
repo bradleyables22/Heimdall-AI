@@ -25,6 +25,7 @@ skills/
   heimdall-payloads/
   heimdall-triggers/
   heimdall-modifiers/
+  heimdall-request-lifecycle/
   heimdall-polling/
   heimdall-lazy-loading/
   heimdall-bifrost-sse/
@@ -45,6 +46,8 @@ Together, these skills teach agents the Heimdall authoring model:
 
 - `FluentHtml` and `Html` for server-side HTML composition.
 - `HeimdallHtml` and `.Heimdall()` helpers for triggers, targets, swaps, payloads, state, SSE, and response directives.
+- Request synchronization, cancellation, timeouts, stale-response suppression, and request/swap lifecycle events.
+- Browser-native `command` and `commandfor` helpers plus `IHtmlContent.ToHtmlString()` for embedded HTML documents.
 - `ContentInvocation`, payload binding, DI activation, authorization, and request timeouts.
 - Bifrost server-sent events for streaming HTML.
 - `Heimdall.Bootstrap` strongly typed Bootstrap helpers.

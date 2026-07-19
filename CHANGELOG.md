@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Added the focused `heimdall-request-lifecycle` skill for parallel, replace, drop, and queue-latest coordination, named groups, cancellation, client timeouts, programmatic invocation, and request/swap lifecycle events.
+- Added native HTML `command` and `commandfor` guidance across the attributes, FluentHtml, and review skills.
+- Added `IHtmlContent.ToHtmlString()` guidance for static and embedded HTML resources without implying asset inlining.
+- Updated configuration, runtime, swaps, modifiers, and review guidance for migration-safe defaults and stale-response protection.
+
 ## 0.1.0
 
 - Converted the Heimdall skills pack into a native Agent Skills repository.

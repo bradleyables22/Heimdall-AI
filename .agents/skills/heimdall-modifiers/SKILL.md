@@ -1,6 +1,6 @@
 ---
 name: heimdall-modifiers
-description: Use when refining Heimdall trigger behavior with modifiers such as debounce, key filters, hover delay, visible once, scroll threshold, polling interval, scope self/closest, ignore regions, prevent default, and disable.
+description: Use when refining Heimdall trigger behavior with modifiers such as debounce, key filters, hover delay, visible once, scroll threshold, polling interval, scope self/closest, ignore regions, prevent default, disable, and request synchronization.
 ---
 
 # Heimdall Modifiers
@@ -43,7 +43,10 @@ input.Heimdall()
 .IgnoreAll()
 .PreventDefault()
 .Disable()
+.SyncReplace("search")
 ```
+
+Use the focused `heimdall-request-lifecycle` skill when choosing among `SyncParallel`, `SyncReplace`, `SyncDrop`, and `SyncQueueLatest`, coordinating groups, or handling cancellation and lifecycle events.
 
 ## Debounce
 
@@ -97,4 +100,6 @@ Ignore blocks parent trigger resolution, while triggers inside the ignored regio
 - Prefer debounce to custom JavaScript for noisy events.
 - Prefer `PreventDefault()` on Heimdall-managed forms.
 - Prefer `Disable()` for submit buttons or commands that should not double-fire.
+- Prefer `SyncReplace()` for searches or previews where stale results must never win.
+- Keep the default parallel strategy when requests are genuinely independent.
 - Use ignore/scope to clarify nested interaction boundaries.

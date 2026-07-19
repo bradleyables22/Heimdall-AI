@@ -1,6 +1,6 @@
 ---
 name: heimdall-html-attributes
-description: Use when writing or debugging raw Heimdall HTML attributes, especially in Razor or hand-authored markup, including heimdall-content-* triggers, heimdall-payload-from, target selectors, swap attributes, debounce attributes, and rendered DOM implementation checks.
+description: Use when writing or debugging raw Heimdall and native HTML attributes, especially in Razor or hand-authored markup, including heimdall-content-* triggers, payloads, targets, swaps, synchronization attributes, command/commandfor, modifiers, and rendered DOM implementation checks.
 ---
 
 # Heimdall HTML Attributes
@@ -68,7 +68,30 @@ Modifiers:
 
 ```text
 heimdall-debounce="300"
+heimdall-sync="replace"
+heimdall-sync-group="search"
 ```
+
+Synchronization values are `parallel`, `replace`, `drop`, and `queue-latest`. Parallel is the default. A group coordinates requests from separate elements; without one, coordination is scoped to the triggering element.
+
+## Browser-Native Commands
+
+The native `command` and `commandfor` attributes work without the Heimdall client runtime:
+
+```html
+<button commandfor="confirmation-dialog" command="show-modal">
+  Open confirmation
+</button>
+```
+
+Typed C# helpers are available on element and fragment builders:
+
+```csharp
+button.CommandFor("confirmation-dialog")
+    .Command(Html.CommandType.show_modal);
+```
+
+Typed values are `toggle_popover`, `show_popover`, `hide_popover`, `close`, `request_close`, and `show_modal`. Use the string overload for a custom command such as `--archive-record`. `CommandFor` takes an element ID without a leading `#`.
 
 ## Implementation Checklist
 
@@ -86,7 +109,8 @@ When an interaction does not work, walk the markup in this order:
    `heimdall-content-target="#orders"`
 6. Is the swap mode appropriate?
    Examples include `inner`, `outer`, `beforeend`, `afterbegin`, or `none`.
-7. Is the element disabled?
+7. Did `heimdall-sync` intentionally replace, drop, or queue the request?
+8. Is the element disabled?
    `disabled` or `aria-disabled="true"` prevents invocation.
 
 ## Guidance
@@ -96,4 +120,5 @@ When an interaction does not work, walk the markup in this order:
 - Debug rendered DOM, not only source code.
 - Keep one clear trigger per interaction element.
 - Keep payload source, target, and swap visible near the trigger.
+- Keep synchronization visible when non-parallel behavior is required.
 - Do not invent attribute names.

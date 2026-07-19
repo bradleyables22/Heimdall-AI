@@ -1,6 +1,6 @@
 ---
 name: heimdall-review
-description: Use when reviewing Heimdall code or generated output for correctness, including imports, real package/API usage, IHtmlContent rendering, encoding, content actions, payloads, swaps, response directives, Bifrost SSE, architecture fit, and anti-patterns.
+description: Use when reviewing Heimdall code or generated output for correctness, including imports, real package/API usage, IHtmlContent and ToHtmlString rendering, native HTML commands, synchronized request lifecycle, encoding, content actions, swaps, response directives, Bifrost SSE, architecture fit, and anti-patterns.
 ---
 
 # Heimdall Review
@@ -33,6 +33,9 @@ event -> server action -> HTML -> targeted DOM update
 - App-owned CSS classes are typed constants near the owning component, such as `NotesPanel.Css.Root`.
 - Framework classes use typed helpers such as `Bootstrap.*` when available.
 - Repeated raw app class strings are treated as maintainability issues.
+- Embedded HTML resources use `IHtmlContent.ToHtmlString()` instead of duplicated serializers.
+- `ToHtmlString()` is not assumed to fetch or inline referenced CSS and JavaScript assets.
+- Native dialog/popover commands use typed `CommandFor` and `Command` helpers where practical.
 
 ## Interactions
 
@@ -46,6 +49,11 @@ event -> server action -> HTML -> targeted DOM update
   - `SwapNone()` when directives or side effects are the main result.
 - Forms use `PayloadFromClosestForm()` when submitting user input.
 - Buttons with static context use `.Payload(...)` or `.PayloadEmptyObject()`.
+- No synchronization attribute is added when parallel requests are correct.
+- Search, filter, preview, and navigation-like replacement use `SyncReplace()` when stale responses must not win.
+- Shared synchronization groups are used only when separate elements must coordinate.
+- Expected request cancellation is handled as a normal `cancelled` result, not a Heimdall error.
+- Lifecycle hooks remain narrow integrations rather than hidden client-side UI ownership.
 
 ## Content Actions
 

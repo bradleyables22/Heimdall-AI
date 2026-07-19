@@ -1,6 +1,6 @@
 ---
 name: heimdall-assets-templates
-description: Use when working with Heimdall static assets, templates, layouts, web root assets, Razor Class Library static web assets, shared template layers, copied SSG assets, and path-base-aware asset URLs.
+description: Use when working with Heimdall static assets, templates, layouts, IHtmlContent string rendering, embedded HTML documents, web root assets, Razor Class Library static web assets, shared template layers, copied SSG assets, and path-base-aware asset URLs.
 ---
 
 # Heimdall Assets And Templates
@@ -70,6 +70,18 @@ public static IHtmlContent Render(IHtmlContent page, string title)
 
 For static generation or subdirectory hosting, use path-base-aware helpers when available, such as `ctx.ToSitePath("/css/site.css")` in static page render callbacks.
 
+## HTML Resource Strings
+
+Render any `IHtmlContent` value to a complete string when another protocol or storage layer needs HTML as data:
+
+```csharp
+using Heimdall.Server.Rendering;
+
+string markup = EmbeddedPanel.Render().ToHtmlString();
+```
+
+`ToHtmlString()` uses the default HTML encoder unless another encoder is supplied. Normal `<script src>` and `<link href>` elements remain normal URL-based assets in the returned document; the method does not fetch or inline referenced files.
+
 ## Site CSS
 
 Keep site CSS in normal static assets such as `wwwroot/css/site.css` or component files under `wwwroot/css/components/`.
@@ -103,5 +115,6 @@ Use framework helpers such as `Bootstrap.*` for framework classes. Avoid scatter
 - Keep app-owned CSS class names typed with component-local constants.
 - Keep asset URLs path-base aware for static/subdirectory deployments.
 - Copy web root and static web assets during SSG when the output needs them.
+- Use `ToHtmlString()` for embedded or static HTML resources instead of duplicating rendering logic.
 - Do not invent custom runtime asset paths.
 - Do not inline large scripts or styles into Heimdall response fragments unless a specific use case demands it.

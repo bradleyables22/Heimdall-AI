@@ -1,6 +1,6 @@
 ---
 name: heimdall-swaps
-description: Use when choosing or debugging Heimdall swap behavior, including target selectors, inner, outer, beforeend, afterbegin, none, fragment shape, append/prepend behavior, and matching returned HTML to DOM update intent.
+description: Use when choosing or debugging Heimdall swap behavior, including target selectors, inner, outer, beforeend, afterbegin, none, fragment shape, append/prepend behavior, swap lifecycle hooks, and matching returned HTML to DOM update intent.
 ---
 
 # Heimdall Swaps
@@ -77,6 +77,23 @@ return HeimdallHtml.Invocation(
     payload: StatusMessage.Render("Saved"));
 ```
 
+## Swap Lifecycle
+
+Action, invocation-directive, and SSE swaps emit the same events:
+
+```javascript
+document.addEventListener("heimdall:swap-before", event => {
+  // Mutable: event.detail.target, fragment, and swap.
+  // event.preventDefault() skips this swap.
+});
+
+document.addEventListener("heimdall:swap-after", event => {
+  console.log(event.detail.appliedRoot);
+});
+```
+
+Detail identifies `origin` (`action` or `sse`) and `kind` (`main` or `invocation`). Mutated fragments are sanitized again before application. Use `heimdall-request-lifecycle` for the complete request and swap event contract.
+
 ## Guidance
 
 - Always choose the target and returned fragment together.
@@ -86,3 +103,4 @@ return HeimdallHtml.Invocation(
 - Prefer `SwapInner()` for stable containers that should keep their identity.
 - Prefer append/prepend swaps for feeds, logs, notifications, and live streams.
 - Prefer `SwapNone()` when the response uses out-of-band directives.
+- Keep swap hooks narrow; do not move UI ownership into a hidden client renderer.

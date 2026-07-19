@@ -1,6 +1,6 @@
 ---
 name: heimdall-fluent-html
-description: Use when generating or editing Heimdall server-rendered markup with FluentHtml or Html, including IHtmlContent render functions, element builders, attributes, forms, tables, text encoding, Raw usage, and Heimdall behavior extension points.
+description: Use when generating or editing Heimdall server-rendered markup with FluentHtml or Html, including IHtmlContent render functions, ToHtmlString output, native command/commandfor helpers, element builders, attributes, forms, tables, text encoding, Raw usage, and Heimdall behavior extension points.
 ---
 
 # Heimdall FluentHtml
@@ -141,6 +141,41 @@ fragment.Raw("<!DOCTYPE html>");
 
 Do not pass untrusted user content to `Raw`.
 
+## Render To A String
+
+Use `ToHtmlString()` when HTML must be returned as data instead of written directly to an ASP.NET Core response:
+
+```csharp
+using Heimdall.Server.Rendering;
+
+IHtmlContent document = FluentHtml.HtmlTag(html =>
+{
+    html.Head(head => head.Title(title => title.Text("Dashboard")))
+        .Body(body => body.Content(Dashboard.Render()));
+});
+
+string markup = document.ToHtmlString();
+```
+
+The default HTML encoder is used unless another encoder is supplied. This is appropriate for static resources and embedded UI documents, including HTML resource strings consumed by another protocol.
+
+## Browser-Native Commands
+
+Use native HTML commands for declarative dialogs, popovers, and custom command events without requiring the Heimdall runtime:
+
+```csharp
+button.CommandFor("confirmation-dialog")
+    .Command(Html.CommandType.show_modal);
+
+closeButton.CommandFor("confirmation-dialog")
+    .Command(Html.CommandType.close);
+
+customButton.CommandFor("record-preview")
+    .Command("--archive-record");
+```
+
+The same helpers are exposed through `Html.Command`, `Html.CommandFor`, `FluentHtml.Command`, and `FluentHtml.CommandFor`. Pass an element ID without `#` to `CommandFor`.
+
 ## Forms
 
 Use `FluentHtml.Form` plus Heimdall behavior helpers:
@@ -244,6 +279,8 @@ button.Heimdall()
     .Target("#orders-list")
     .SwapOuter();
 ```
+
+Add `.SyncReplace("orders")`, `.SyncDrop()`, `.SyncQueueLatest()`, or `.SyncParallel()` only when requests need explicit overlap coordination.
 
 Call `.Heimdall()` on a fragment builder to add response directives:
 
