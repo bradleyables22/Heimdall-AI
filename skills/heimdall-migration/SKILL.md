@@ -95,6 +95,8 @@ form.Heimdall()
 4. Swap the target DOM region with Heimdall.
 5. Keep JavaScript only for browser-only effects such as focus, clipboard, or analytics.
 
+When old client code only toggles attributes, classes, accessibility state, or a small DOM state value, consider a Heimdall mutation response instead of replacing a complete component. Keep normal swaps for markup/content changes.
+
 Do not return JSON for normal UI updates unless an existing API must remain for non-Heimdall clients.
 
 ## From Polling Or WebSockets
@@ -125,6 +127,7 @@ await bifrost.PublishAsync(
 - Preserve existing service boundaries.
 - Convert repeated markup into fragments before converting full pages.
 - Use response directives when one action must update multiple targets.
+- Use local-time rendering for browser-local display instead of maintaining a custom timezone endpoint or formatter script.
 - Add Bifrost only for live updates, notifications, progress, or dashboards.
 
 ## Things To Avoid

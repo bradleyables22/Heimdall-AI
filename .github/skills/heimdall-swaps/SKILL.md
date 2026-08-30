@@ -94,6 +94,8 @@ document.addEventListener("heimdall:swap-after", event => {
 
 Detail identifies `origin` (`action` or `sse`) and `kind` (`main` or `invocation`). Mutated fragments are sanitized again before application. Use `heimdall-request-lifecycle` for the complete request and swap event contract.
 
+Out-of-band invocations and mutations are processed before the main swap and in response order. Selector targets are re-resolved after out-of-band processing, so a directive may replace or create the node that receives the main result. Use `heimdall-mutations` for in-place attribute, class, and state updates.
+
 ## Guidance
 
 - Always choose the target and returned fragment together.
@@ -103,4 +105,5 @@ Detail identifies `origin` (`action` or `sse`) and `kind` (`main` or `invocation
 - Prefer `SwapInner()` for stable containers that should keep their identity.
 - Prefer append/prepend swaps for feeds, logs, notifications, and live streams.
 - Prefer `SwapNone()` when the response uses out-of-band directives.
+- Keep response directive order explicit when one update creates or replaces another target.
 - Keep swap hooks narrow; do not move UI ownership into a hidden client renderer.

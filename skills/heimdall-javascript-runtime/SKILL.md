@@ -1,6 +1,6 @@
 ---
 name: heimdall-javascript-runtime
-description: Use when reasoning about Heimdall's browser runtime, including runtime script loading, DOM attribute scanning, trigger handling, synchronized request lifecycle, cancellation and timeouts, swap hooks, response directive processing, runtime debugging, and lifecycle behavior.
+description: Use when reasoning about Heimdall's browser runtime, including script loading, DOM attribute scanning, triggers, synchronized requests, async request headers, client information, unauthorized handling, local-time processing, mutations, cancellation, swaps, SSE, and lifecycle behavior.
 ---
 
 # Heimdall JavaScript Runtime
@@ -30,13 +30,21 @@ Debug build:
 
 - find Heimdall trigger attributes in rendered DOM
 - listen for trigger events
+- invoke document-visible actions when a hidden document becomes visible
+- invoke online actions when browser connectivity returns
+- expose offline transitions as the client-only `heimdall:offline` document event
 - collect payloads
 - coordinate parallel, replace, drop, and queue-latest requests
 - send requests to content actions
 - emit request and swap lifecycle events
 - process response directives
+- normalize and apply successful action history directives
 - apply the configured swap
 - handle SSE messages from Bifrost
+- collect optional browser client information for content actions
+- resolve optional asynchronous application request headers
+- localize marked absolute times before content enters the DOM
+- apply ordered in-place mutation directives
 - invoke explicitly named JavaScript functions when directed
 
 ## Debugging Interactions
@@ -65,9 +73,30 @@ heimdall:request-cancel
 heimdall:request-timeout
 heimdall:swap-before
 heimdall:swap-after
+heimdall:unauthorized
+heimdall:client-info-before
+heimdall:time-before
+heimdall:time-after
+heimdall:time-error
+heimdall:mutation-before
+heimdall:mutation-after
+heimdall:mutation-error
+heimdall:history-before
+heimdall:history-after
+heimdall:history-error
+heimdall:history-pop
+heimdall:offline
 ```
 
 `request-before` and `swap-before` are cancellable. Request configuration and pre-swap target/fragment/mode are mutable. Replace-mode stale responses are suppressed before DOM, OOB, JavaScript, or redirect effects.
+
+`requestHeaders` is asynchronous and runs at request-attempt time before `request-before`; a rejection fails closed. `unauthorized` is cancellable only to suppress Heimdall's default `Location` redirect for a raw `401`.
+
+`heimdall:offline` is not a request lifecycle event. It is dispatched on `document` with `event.detail.online === false`, is not cancellable, and never creates or queues a content action. The `Online` trigger performs a normal action attempt when connectivity returns; browser online status does not guarantee server reachability.
+
+`history-before` is cancellable and may change `detail.mode` or `detail.url`. `history-after` reports normalized values. `history-error` reports invalid or duplicate directives. `history-pop` is cancellable and otherwise causes a normal page reload for managed Back/Forward traversal. Rootless history routes are origin-rooted: `orders/42` and `/orders/42` both become `/orders/42`.
+
+Use `heimdall-time-localization`, `heimdall-mutations`, `heimdall-client-info`, and `heimdall-request-lifecycle` for the complete contracts of those runtime areas.
 
 ## Guidance
 

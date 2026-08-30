@@ -1,6 +1,6 @@
 ---
 name: heimdall-request-lifecycle
-description: Use when coordinating overlapping Heimdall browser requests, preventing stale search or navigation results, configuring parallel/replace/drop/queue-latest behavior, setting client timeouts or AbortSignal cancellation, using Heimdall.invoke, or integrating request and swap lifecycle DOM events.
+description: Use when coordinating Heimdall browser requests, preventing stale results, configuring parallel/replace/drop/queue-latest, understanding queued payload and target snapshots, setting timeouts or AbortSignal cancellation, resolving asynchronous request headers, using Heimdall.invoke, or integrating request, unauthorized, and swap lifecycle events.
 ---
 
 # Heimdall Request Lifecycle
@@ -108,6 +108,9 @@ Order the integration around this pipeline:
 ```text
 request-config (mutable)
 -> synchronization
+-> queued payload/target refresh when execution begins
+-> antiforgery and client-info preparation
+-> async requestHeaders
 -> request-before (cancellable)
 -> fetch and response processing
 -> request-after, or request-cancel/request-timeout
@@ -115,6 +118,62 @@ request-config (mutable)
 ```
 
 `request-before` runs for each fetch attempt. Cancellation through `preventDefault()` uses the `event-cancelled` reason.
+
+## Asynchronous Request Headers
+
+Use the global async provider for credentials that must be fresh when an attempt actually starts:
+
+```javascript
+Heimdall.config.requestHeaders = async context => {
+  const token = await auth.getAccessToken(context.signal);
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+```
+
+The context contains `kind`, `url`, `method`, `actionId`, `topic`, `requestId`, `attempt`, `sourceElement`, `signal`, and prepared `headers`. Kinds are `content-action`, `csrf-token`, and `bifrost-token`; action-only values and the abort signal are `null` for internal token requests.
+
+The provider may mutate `context.headers`, return a `Headers` instance, header pairs, a plain object, or return nothing. Header precedence is:
+
+```text
+framework headers
+-> provider mutations
+-> provider return value
+-> explicit Heimdall.invoke/request-config headers
+-> request-before mutations
+```
+
+Names are merged case-insensitively. A provider rejection fails closed with `ok: false`, status `0`, code `request-headers-failed`, and `heimdall:error` phase `request-headers`. Normal finalization still runs.
+
+The provider also authenticates CSRF-token and Bifrost token-minting requests. It cannot add headers to the native `EventSource` stream. Filter both `context.kind` and `context.url` before attaching credentials to configurable endpoints.
+
+## Unauthorized Responses
+
+Raw `401 Unauthorized` responses from content actions, CSRF-token requests, and Bifrost token requests emit the cancellable `heimdall:unauthorized` event:
+
+```javascript
+document.addEventListener("heimdall:unauthorized", event => {
+  event.preventDefault(); // Suppress a Location-based redirect.
+  showLoginOrNavigate(event.detail);
+});
+```
+
+The detail contains request kind and identifiers, URL, method, status, body, optional normalized redirect URL, and the browser `Response`. Preventing default does not make the request succeed or suppress normal error reporting. The event is intentionally limited to `401`; `403` means an authenticated caller lacks permission.
+
+## Queue-Latest Data And Target Rules
+
+Queued work behaves like a real invocation when execution begins while preserving input the user already submitted:
+
+- Closest-form fields and selected files are snapshotted when the trigger fires.
+- Explicit and programmatic payloads remain the submitted values.
+- Closest-state payloads are re-read when queued execution begins so an earlier response can advance state first.
+- A `request-config` payload replacement remains authoritative.
+- Selector targets are re-resolved after waiting and again after out-of-band directives that may replace them.
+- A disconnected direct-element target cancels with `target-disconnected`.
+- A missing or replaced closest-state source cancels with `payload-source-unavailable`.
+- A newer queued item replaces the older pending item with `queue-replaced`.
+- An antiforgery retry reuses the attempt's payload snapshot instead of silently reading newer state or form values.
+
+These rules prevent stale DOM references while avoiding surprising changes to a form submission.
 
 ## Swap Lifecycle Events
 
@@ -134,6 +193,8 @@ Swap detail identifies `origin` (`action` or `sse`), `kind` (`main` or `invocati
 ## Correctness Guarantees
 
 - Replace-mode stale responses cannot mutate the DOM, apply OOB updates, invoke JavaScript, or redirect.
+- Queue-latest re-resolves live selector and state boundaries while preserving submitted form and file data.
+- Request-header failures do not send the protected request.
 - Request timeouts and external abort signals use the normal cancellation result and lifecycle.
 - Existing `heimdall:before`, `heimdall:after`, `heimdall:error`, `heimdall:abort`, and `heimdall:redirect` events remain supported.
 - `heimdall:abort` represents the server `<abort>` directive; client cancellation uses `heimdall:request-cancel`.
@@ -143,4 +204,5 @@ Swap detail identifies `origin` (`action` or `sse`), `kind` (`main` or `invocati
 - Prefer `replace` plus debounce for type-ahead search.
 - Prefer named groups only when multiple elements truly share one request lane.
 - Use lifecycle events for observability and narrow integration, not as a hidden client application layer.
+- Honor `context.signal` in async header providers so replaced, aborted, or timed-out work can stop promptly.
 - Keep action IDs, payloads, targets, swaps, and synchronization visible in markup or typed helpers.

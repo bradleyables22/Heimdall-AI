@@ -1,6 +1,6 @@
 ---
 name: heimdall-html-attributes
-description: Use when writing or debugging raw Heimdall and native HTML attributes, especially in Razor or hand-authored markup, including heimdall-content-* triggers, payloads, targets, swaps, synchronization attributes, command/commandfor, modifiers, and rendered DOM implementation checks.
+description: Use when writing or debugging raw Heimdall and native HTML attributes, especially in Razor or hand-authored markup, including heimdall-content-* triggers, payloads, targets, swaps, synchronization, local-time attributes, command/commandfor, modifiers, and rendered DOM implementation checks.
 ---
 
 # Heimdall HTML Attributes
@@ -45,10 +45,17 @@ heimdall-content-click
 heimdall-content-submit
 heimdall-content-input
 heimdall-content-change
+heimdall-content-keydown
+heimdall-content-blur
+heimdall-content-hover
 heimdall-content-load
 heimdall-content-visible
+heimdall-content-document-visible
+heimdall-content-online
 heimdall-content-scroll
 ```
+
+`heimdall-content-visible` observes whether that element intersects the viewport. `heimdall-content-document-visible` invokes on each hidden-to-visible document transition and does not run during initial boot. `heimdall-content-online` invokes when the browser reports restored connectivity. Offline has no trigger attribute because it cannot invoke the server; listen for `heimdall:offline` on `document` instead.
 
 Payload:
 
@@ -73,6 +80,30 @@ heimdall-sync-group="search"
 ```
 
 Synchronization values are `parallel`, `replace`, `drop`, and `queue-latest`. Parallel is the default. A group coordinates requests from separate elements; without one, coordination is scoped to the triggering element.
+
+Browser-local time:
+
+```html
+<span
+  lang="en-US"
+  heimdall-time="2026-08-26T18:30:05.000Z"
+  heimdall-time-format="MMM d, yyyy 'at' h:mm tt">
+  Aug 26, 2026 at 6:30 PM
+</span>
+```
+
+Prefer fluent `.LocalizeTime(...)` in C# so the absolute timestamp, format, encoding, and fallback are validated consistently. Use `heimdall-time-localization` for the supported format subset and runtime behavior.
+
+Use the native language helper instead of a raw attribute when authoring with FluentHtml:
+
+```csharp
+html.Lang("en");
+panel.Lang("fr-FR");
+```
+
+`.Lang(...)` emits the standard HTML `lang` attribute. It is useful for accessibility and browser behavior generally, and it also lets a localized-time subtree choose a locale without changing the entire document language.
+
+Mutation response elements are not ordinary element behavior attributes. Use the focused `heimdall-mutations` skill for `<mutation>`, `<mutation-attr>`, and `<mutation-class>`.
 
 ## Browser-Native Commands
 

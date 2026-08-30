@@ -1,6 +1,6 @@
 ---
 name: heimdall-configuration-runtime
-description: Use when configuring Heimdall server options or browser runtime behavior, including AddHeimdall settings, runtime script loading, Heimdall.config defaults, request synchronization and timeout defaults, detailed errors, endpoint setup, middleware order, and diagnosing runtime boot issues.
+description: Use when configuring Heimdall server options or browser runtime behavior, including AddHeimdall settings, antiforgery, runtime script loading, Heimdall.config synchronization, timeouts, client information, asynchronous request headers, detailed errors, endpoint setup, middleware order, and runtime boot issues.
 ---
 
 # Heimdall Configuration And Runtime
@@ -85,6 +85,66 @@ Heimdall.config.requestTimeoutMs = 0;
 
 Use `heimdall:request-config`, `heimdall:request-before`, `heimdall:request-after`, `heimdall:request-finally`, `heimdall:request-cancel`, and `heimdall:request-timeout` for request integration. Use the focused `heimdall-request-lifecycle` skill for strategy selection and event ordering.
 
+## Antiforgery Configuration
+
+Validation and browser token work are enabled by default. To disable them globally, align the server and browser:
+
+```csharp
+builder.Services.AddHeimdall(options =>
+{
+    options.EnableAntiforgery = false;
+});
+```
+
+```javascript
+Heimdall.config.antiforgery = false;
+```
+
+Set the browser option before content actions or SSE subscriptions start. The browser setting only suppresses token acquisition, headers, and antiforgery retries; it does not weaken server validation by itself.
+
+When globally disabled, Heimdall does not require `AddAntiforgery()` or `UseAntiforgery()`. Keep them when other endpoints use ASP.NET Core antiforgery. Prefer `[RequireAntiforgeryToken(false)]` when only one action or declaring type should opt out.
+
+## Browser Client Information
+
+Opt in to a bounded browser-capability snapshot on content actions:
+
+```javascript
+Heimdall.config.clientInfo = true;
+Heimdall.config.clientInfoMaxAgeMs = 60_000;
+```
+
+Collection is disabled by default and adds no extra request. Use the focused `heimdall-client-info` skill for server binding, caching, events, CORS, and trust boundaries.
+
+## Asynchronous Request Headers
+
+Use an async provider when credentials or other headers must be resolved just before a request attempt:
+
+```javascript
+Heimdall.config.requestHeaders = async context => {
+  if (new URL(context.url).origin !== window.location.origin)
+    return {};
+
+  const token = await auth.getAccessToken(context.signal);
+  if (!token)
+    throw new Error("Authentication is required.");
+
+  return { Authorization: `Bearer ${token}` };
+};
+```
+
+The provider runs for `content-action`, `csrf-token`, and `bifrost-token` requests. Inspect `context.kind` and `context.url` before attaching credentials. A rejection fails closed; the request is not sent and content actions resolve with code `request-headers-failed`.
+
+Use `heimdall:unauthorized` for raw `401` handling:
+
+```javascript
+document.addEventListener("heimdall:unauthorized", event => {
+  event.preventDefault();
+  window.location.assign("/sign-in");
+});
+```
+
+Preventing the event suppresses Heimdall's `Location` redirect only; the request remains failed and normal error reporting continues. Use `heimdall-request-lifecycle` for provider ordering, precedence, cancellation, and full event semantics.
+
 ## Middleware Order
 
 Use the normal ASP.NET Core ordering rules:
@@ -113,5 +173,7 @@ When an interaction does not fire:
 - Do not invent endpoint paths or runtime script paths.
 - Do not use JavaScript config as a substitute for visible Heimdall attributes.
 - Keep detailed errors development-only.
+- Keep server and browser antiforgery settings aligned.
+- Filter async credentials by trusted request kind and origin.
 - Keep interactions declarative in markup whenever possible.
 - Debug by inspecting the rendered DOM first.

@@ -16,9 +16,11 @@ skills/
   heimdall-app-structure/
   heimdall-pages-routing-middleware/
   heimdall-fluent-html/
+  heimdall-time-localization/
   heimdall-html-attributes/
   heimdall-content-actions/
   heimdall-response-directives/
+  heimdall-mutations/
   heimdall-swaps/
   heimdall-state/
   heimdall-forms/
@@ -33,6 +35,8 @@ skills/
   heimdall-static-site-generation/
   heimdall-mvc-integration/
   heimdall-configuration-runtime/
+  heimdall-client-info/
+  heimdall-observability/
   heimdall-assets-templates/
   heimdall-security/
   heimdall-javascript-runtime/
@@ -44,12 +48,19 @@ skills/
 
 Together, these skills teach agents the Heimdall authoring model:
 
-- `FluentHtml` and `Html` for server-side HTML composition.
+- `FluentHtml` and `Html` for server-side HTML composition, including native `.Lang(...)` and scoped `.Heimdall(h => ...)` transitions back to the original HTML builder.
+- Browser-local time rendering with C#-style formats and lifecycle customization.
 - `HeimdallHtml` and `.Heimdall()` helpers for triggers, targets, swaps, payloads, state, SSE, and response directives.
+- Ordered in-place attribute, class, and state mutations for action and SSE responses.
 - Request synchronization, cancellation, timeouts, stale-response suppression, and request/swap lifecycle events.
+- Multipart forms, file uploads, native ASP.NET Core request limits, and safe upload handling.
+- Global and per-action antiforgery policy, asynchronous request headers, JWT integration, and unauthorized hooks.
+- Optional bounded browser client information for presentation-aware content actions.
+- `ActivitySource` traces and `System.Diagnostics.Metrics` instruments for content actions and Bifrost.
 - Browser-native `command` and `commandfor` helpers plus `IHtmlContent.ToHtmlString()` for embedded HTML documents.
 - `ContentInvocation`, payload binding, DI activation, authorization, and request timeouts.
 - Bifrost server-sent events for streaming HTML.
+- Local Bifrost subscriber hints for avoiding optional expensive publication work.
 - `Heimdall.Bootstrap` strongly typed Bootstrap helpers.
 - Heimdall's HTML-first loop: event to server action to HTML to targeted DOM update.
 - Migration and review patterns for existing ASP.NET Core UI.

@@ -1,6 +1,6 @@
 ---
 name: heimdall-bifrost-sse
-description: Use when building Heimdall real-time features with Bifrost server-sent events, including SSE subscriptions, topics, named events, server publication of IHtmlContent, response directives in streamed content, TTLs, and topic authorization.
+description: Use when building Heimdall real-time features with Bifrost server-sent events, including subscriptions, topics, named events, IHtmlContent publication, response directives and mutations, TTLs, HasSubscribers hints, antiforgery, request authentication, and topic authorization.
 ---
 
 # Heimdall Bifrost SSE
@@ -76,6 +76,23 @@ await bifrost.PublishAsync(
     ct: ct);
 ```
 
+## Subscriber Hint
+
+Background services can avoid expensive rendering when nobody is currently listening on this application instance:
+
+```csharp
+if (!bifrost.HasSubscribers("orders"))
+    return;
+
+await bifrost.PublishAsync(
+    "orders",
+    OrdersPanel.Render(model),
+    TimeSpan.FromSeconds(10),
+    ct);
+```
+
+`HasSubscribers(topic)` is an instantaneous in-memory hint for the current process only. A subscriber can connect or disconnect immediately afterward. It does not list topics or users, account for other application instances, reserve delivery, or replace publishing correctness.
+
 ## SSE With Out-Of-Band Updates
 
 Bifrost content can include response directives:
@@ -91,6 +108,8 @@ var message = FluentHtml.Fragment(fragment =>
 
 await bifrost.PublishAsync("orders", message, TimeSpan.FromSeconds(10), ct);
 ```
+
+Streamed content may also contain ordered mutation directives. Use `heimdall-mutations` when a live update should change attributes, classes, or state without replacing a node.
 
 ## Authorization
 
@@ -114,6 +133,14 @@ builder.Services.AddHeimdall(options =>
 
 If both `BifrostTopicPolicy` and `AuthorizeBifrostTopic` are configured, both must allow the topic.
 
+## Antiforgery And Authentication
+
+Bifrost first requests a signed subscribe token, then opens the native `EventSource` connection. Antiforgery applies to token minting by default.
+
+When antiforgery is globally disabled, align the server's `EnableAntiforgery = false` with browser `Heimdall.config.antiforgery = false`. Signed Bifrost subscribe tokens still use data protection independently.
+
+`Heimdall.config.requestHeaders` runs for the `bifrost-token` request, so bearer authentication can protect token minting. Native `EventSource` cannot receive arbitrary application headers; the async provider does not run on the stream connection itself. Raw `401` token responses emit `heimdall:unauthorized`.
+
 ## Guidance
 
 - Use SSE for server-initiated updates, live feeds, notifications, dashboards, and progress streams.
@@ -122,3 +149,5 @@ If both `BifrostTopicPolicy` and `AuthorizeBifrostTopic` are configured, both mu
 - Use stable topic names such as `orders`, `alerts`, or `user:{id}:notifications`.
 - Use named events when multiple UI regions share one topic but need different handling.
 - Keep TTLs short enough for stale messages to expire naturally.
+- Use `HasSubscribers` only to skip optional expensive work, never as a delivery guarantee.
+- Authenticate and authorize subscribe-token minting for protected topics.

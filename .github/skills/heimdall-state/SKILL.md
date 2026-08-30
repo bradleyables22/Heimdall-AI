@@ -49,6 +49,19 @@ public static class CounterActions
 }
 ```
 
+## Mutating State In Place
+
+An out-of-band mutation can update or remove Heimdall state without replacing the host element:
+
+```csharp
+fragment.Heimdall().Mutate("#counter", mutation => mutation
+    .State(new CounterState { Count = nextCount }));
+```
+
+Keyed state uses `.State("key", value)` and `.RemoveState("key")`. Use the focused `heimdall-mutations` skill for scopes, ordering, lifecycle hooks, and raw directive shape.
+
+With `queue-latest`, closest-state is re-read when queued execution begins, allowing an earlier response mutation to advance the state used by the next action. Form fields and files follow submission-time snapshot rules instead.
+
 ## Guidance
 
 - Use state for small interaction context, not for replacing server persistence.

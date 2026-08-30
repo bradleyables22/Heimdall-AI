@@ -1,0 +1,4 @@
+interface:
+  display_name: "Heimdall Client Info"
+  short_description: "Use browser capability information in actions"
+  default_prompt: "Use $heimdall-client-info to bind and safely use browser presentation capabilities in Heimdall actions."

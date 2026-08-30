@@ -63,6 +63,17 @@ return FluentHtml.Fragment(fragment =>
 });
 ```
 
+Use an in-place mutation when a response only needs to change attributes, classes, accessibility state, or small Heimdall state while preserving the existing node:
+
+```csharp
+fragment.Heimdall().Mutate("#checkout", mutation => mutation
+    .RemoveClass("saving")
+    .AddClass("saved")
+    .Attr("aria-live", "polite"));
+```
+
+Return replacement HTML when content or structure changed. Use the focused `heimdall-mutations` skill for scopes, ordering, and lifecycle behavior.
+
 ## Lazy Loading
 
 Use `Load` for immediate deferred regions and `Visible` for below-the-fold or infinite-load regions.
@@ -91,6 +102,7 @@ In MVC-heavy apps:
 - Keep actions close to the rendered component or partial they update.
 - Use typed constants for app-owned CSS class names and action IDs.
 - Use response directives for coordinated updates.
+- Use mutations for narrow in-place changes, not as a bulk client renderer.
 - Use JavaScript only for explicit browser effects.
 - Avoid JSON-first UI interactions unless there is a non-Heimdall API consumer.
 - Avoid SPA shells unless explicitly required.

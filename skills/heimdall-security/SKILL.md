@@ -1,6 +1,6 @@
 ---
 name: heimdall-security
-description: Use when reviewing or implementing Heimdall security, including encoded text, Raw safety, antiforgery, authorization metadata, request timeouts, payload validation, JavaScript directive safety, SSE topic authorization, and avoiding JSON/client-state security drift.
+description: Use when reviewing or implementing Heimdall security, including encoding and Raw safety, global and per-action antiforgery, JWT or asynchronous request headers, unauthorized handling, CORS, upload validation, untrusted client information, authorization metadata, JavaScript directives, and SSE topic authorization.
 ---
 
 # Heimdall Security
@@ -38,6 +38,66 @@ var app = builder.Build();
 
 app.UseAntiforgery();
 ```
+
+Validation is enabled by default. A specific action or declaring type can opt out with native ASP.NET Core metadata:
+
+```csharp
+using Microsoft.AspNetCore.Antiforgery;
+
+[RequireAntiforgeryToken(false)]
+[ContentInvocation("webhook.receive")]
+public static IHtmlContent Receive(WebhookPayload payload)
+    => Html.Span("Accepted");
+```
+
+Method metadata overrides type metadata. Disable globally only when another model makes cross-site requests harmless, such as a bearer-token API without ambient cookie authentication:
+
+```csharp
+builder.Services.AddHeimdall(options =>
+{
+    options.EnableAntiforgery = false;
+});
+```
+
+Also set `Heimdall.config.antiforgery = false` before browser actions or SSE subscriptions begin. The server setting is authoritative; the browser setting only avoids unnecessary token work.
+
+## Bearer Tokens And Request Headers
+
+Resolve short-lived credentials asynchronously at request-attempt time:
+
+```javascript
+Heimdall.config.requestHeaders = async context => {
+  const url = new URL(context.url);
+  if (url.origin !== window.location.origin)
+    return {};
+
+  const token = await auth.getAccessToken(context.signal);
+  if (!token)
+    throw new Error("Authentication is required.");
+
+  return { Authorization: `Bearer ${token}` };
+};
+```
+
+The provider runs for content actions, CSRF-token requests, and Bifrost subscribe-token requests. Filter by `context.kind` and trusted origin before attaching credentials. Provider rejection fails closed and prevents the request.
+
+Use the cancellable `heimdall:unauthorized` event to show login UI or navigate after raw `401` responses. Preventing default suppresses only a `Location`-based redirect; it does not convert failure into success. Do not treat `403` as an authentication challenge.
+
+Native `EventSource` cannot receive arbitrary headers. Authenticate the Bifrost token-minting request; the signed subscribe token then protects the stream connection.
+
+## File Uploads
+
+Uploaded files are untrusted input:
+
+- Set finite request and multipart section limits.
+- Validate content signatures rather than trusting extension or `ContentType`.
+- Generate storage names instead of using `IFormFile.FileName`.
+- Store files outside executable/static roots unless controlled serving is intended.
+- Use a dedicated streaming endpoint for files too large for buffered `IFormFile` handling.
+
+## Client Information
+
+`HeimdallClientInfo` values come from the `X-Heimdall-Client-Info` request header. Never use timezone, locale, viewport, device category, theme, or capability values for authorization, pricing, auditing, or identity. Render a safe default when `IsAvailable` is false.
 
 ## Authorization
 
@@ -107,6 +167,20 @@ builder.Services.AddHeimdall(options =>
 });
 ```
 
+`Bifrost.HasSubscribers(topic)` reveals only an instantaneous local-instance boolean. It does not identify users, replace authorization, or guarantee delivery.
+
+## Cross-Origin Frontends
+
+Cross-origin Heimdall requests generally require CORS preflight because they use non-safelisted headers. Explicitly allow trusted frontend origins, methods, and the headers the application enables, including:
+
+- `X-Heimdall-Content-Action`
+- `RequestVerificationToken`
+- `X-Heimdall-Client-Info`
+- application headers such as `Authorization`
+- JSON and multipart content types
+
+Do not recommend unrestricted origins for authenticated applications. The runtime currently uses `credentials: "same-origin"`; verify the application's supported authentication model before promising cross-domain cookie authentication.
+
 ## Guidance
 
 - Prefer server-rendered HTML over client-rendered JSON for UI state.
@@ -115,3 +189,5 @@ builder.Services.AddHeimdall(options =>
 - Keep JavaScript interop explicit and narrow.
 - Never use `Raw` for untrusted values.
 - Avoid leaking sensitive data into inline payloads or state blobs.
+- Keep async credential providers origin-aware and fail closed when a required token is unavailable.
+- Treat uploads and client-information headers as untrusted input.

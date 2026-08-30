@@ -1,6 +1,6 @@
 ---
 name: heimdall-content-actions
-description: Use when wiring Heimdall interactions and server-side content actions, including .Heimdall() triggers, invocation IDs, payload sources, targets, swap modes, ContentInvocation attributes, payload binding, dependency injection, authorization, and request timeouts.
+description: Use when wiring Heimdall interactions and server-side content actions, including .Heimdall() triggers, invocation IDs, payload sources, targets, swap modes, ContentInvocation attributes, JSON and multipart binding, uploaded files, HeimdallClientInfo, dependency injection, authorization, antiforgery metadata, and request timeouts.
 ---
 
 # Heimdall Content Actions
@@ -102,6 +102,8 @@ Content actions support:
 - `HttpContext`
 - `CancellationToken`
 - `ClaimsPrincipal`
+- `HeimdallClientInfo`
+- uploaded files as `IFormFile`, `IFormFileCollection`, arrays, or common generic file collection interfaces
 - constructor dependencies through DI for instance action classes
 - implicit service parameters
 - `[FromServices]` service parameters
@@ -112,6 +114,45 @@ Supported return shapes:
 - `IHtmlContent`
 - `Task<IHtmlContent>`
 - `ValueTask<IHtmlContent>`
+
+## Multipart And File Parameters
+
+File parameters bind by field/parameter name and can be combined with the normal payload parameter:
+
+```csharp
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+[RequestSizeLimit(10_000_000)]
+[RequestFormLimits(MultipartBodyLengthLimit = 8_000_000)]
+[ContentInvocation("profile.save")]
+public static IHtmlContent Save(
+    [FromForm] ProfilePayload payload,
+    [FromForm(Name = "avatar")] IFormFile upload)
+{
+    return Html.Span($"Received {upload.Length} bytes");
+}
+```
+
+`[FromForm]` is optional for ordinary multipart payload binding but makes a form-only contract explicit. Its `Name` property aliases payload prefixes and file field names. A form-only payload rejects JSON with `415 Unsupported Media Type`.
+
+Heimdall honors native `[RequestSizeLimit]`, `[DisableRequestSizeLimit]`, and `[RequestFormLimits]` metadata on methods and declaring types. Use the focused `heimdall-forms` skill for the complete upload flow and security rules.
+
+## Browser Client Information
+
+`HeimdallClientInfo` is a framework-provided parameter and does not consume the payload slot:
+
+```csharp
+[ContentInvocation("dashboard.render")]
+public static IHtmlContent Render(
+    DashboardRequest request,
+    HeimdallClientInfo client)
+{
+    return Dashboard.Render(request, client.IsAvailable ? client.ColorScheme : null);
+}
+```
+
+The browser must opt in with `Heimdall.config.clientInfo = true`. Treat every value as untrusted presentation input. Use the focused `heimdall-client-info` skill for the schema, caching, events, CORS, and security boundaries.
 
 ## Payload Sources
 
@@ -182,8 +223,12 @@ Common fluent trigger helpers:
 .Blur("field.validate")
 .Hover("card.preview")
 .Visible("feed.more")
+.DocumentVisible("dashboard.refresh")
+.Online("connection.restore")
 .Scroll("feed.more")
 ```
+
+`Visible` means that an element intersects the viewport. `DocumentVisible` means the user returned to a previously hidden document and does not run on initial boot. `Online` invokes when the browser reports connectivity returning. Offline is a client-only `heimdall:offline` document event and never invokes or queues a content action.
 
 Useful modifiers:
 
@@ -229,6 +274,21 @@ public static async Task<IHtmlContent> Search(SearchPayload payload, Cancellatio
 ```
 
 Use `[DisableRequestTimeout]` when an action should opt out of configured timeouts.
+
+Antiforgery validation is enabled by default. Use ASP.NET Core's native metadata for a narrowly scoped opt-out:
+
+```csharp
+using Microsoft.AspNetCore.Antiforgery;
+
+[RequireAntiforgeryToken(false)]
+[ContentInvocation("webhook.receive")]
+public static IHtmlContent Receive(WebhookPayload payload)
+{
+    return Html.Span("Accepted");
+}
+```
+
+Method metadata overrides declaring-type metadata. Prefer this narrow opt-out to disabling antiforgery for the entire Heimdall application.
 
 ## Naming Guidance
 

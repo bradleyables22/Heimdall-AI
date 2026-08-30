@@ -48,6 +48,21 @@ app.MapHeimdallPage("/", () =>
 app.Run();
 ```
 
+Antiforgery validation is enabled by default. If an application deliberately uses a non-cookie security model and disables it globally, align both sides before actions or SSE subscriptions begin:
+
+```csharp
+builder.Services.AddHeimdall(options =>
+{
+    options.EnableAntiforgery = false;
+});
+```
+
+```javascript
+Heimdall.config.antiforgery = false;
+```
+
+In that mode Heimdall itself does not require `AddAntiforgery()` or `UseAntiforgery()`, although other application endpoints still may. `AddHeimdall()` registers data protection independently for signed Bifrost subscribe tokens. Prefer native `[RequireAntiforgeryToken(false)]` metadata when only one action or declaring type should opt out.
+
 Reference the browser runtime from layouts or pages:
 
 ```csharp

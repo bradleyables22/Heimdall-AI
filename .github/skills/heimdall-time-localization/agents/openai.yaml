@@ -1,0 +1,4 @@
+interface:
+  display_name: "Heimdall Local Time"
+  short_description: "Render browser-local dates and times"
+  default_prompt: "Use $heimdall-time-localization to render absolute server times in the user's browser-local timezone."

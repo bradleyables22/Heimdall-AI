@@ -73,6 +73,28 @@ Content invocations:
 - typically swapped into an existing target
 - run inside ASP.NET Core but serve interaction flows instead of route-level page loads
 
+## Canonical Routes From Action History
+
+A successful content action may push or replace the address-bar URL with a history response directive. The action remains an RPC interaction; the history URL must also map to a normal page because browser Back, Forward, refresh, sharing, and direct entry use GET.
+
+```csharp
+app.MapHeimdallPage("/orders/{id:int}", (route, ctx) =>
+    MainLayout.Render(
+        ctx,
+        OrderPage.Render(route.GetInt32("id")),
+        "Order"));
+
+[ContentInvocation("orders.open")]
+public static IHtmlContent Open([ContentPayload] OpenOrder payload)
+    => FluentHtml.Fragment(fragment =>
+    {
+        fragment.Add(OrderPanel.Render(payload.Id));
+        fragment.Heimdall().HistoryPush($"orders/{payload.Id}");
+    });
+```
+
+`orders/42` and `/orders/42` intentionally resolve to the same origin-rooted URL. Do not depend on the current page directory. Use push for a new navigation state and replace when correcting or refining the current entry. There is no server-issued pop command.
+
 ## Guidance
 
 - Use pages for route-level rendering.
@@ -81,4 +103,5 @@ Content invocations:
 - Apply endpoint authorization to protected pages.
 - Keep layouts responsible for shared chrome and assets.
 - Do not use content actions as full-page routes.
+- Map every URL emitted by `HistoryPush` or `HistoryReplace` as a page route.
 - Do not use pages as ad hoc action endpoints for dynamic fragments.

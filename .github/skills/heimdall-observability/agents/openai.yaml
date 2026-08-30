@@ -1,0 +1,4 @@
+interface:
+  display_name: "Heimdall Observability"
+  short_description: "Trace and monitor Heimdall server behavior"
+  default_prompt: "Use $heimdall-observability to configure traces and metrics for Heimdall content actions and Bifrost."

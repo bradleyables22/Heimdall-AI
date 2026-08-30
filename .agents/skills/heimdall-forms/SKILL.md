@@ -1,6 +1,6 @@
 ---
 name: heimdall-forms
-description: Use when building Heimdall forms, including traditional submit flows, interactive validation loops, PayloadFromClosestForm, SwapNone, status regions, server validation, re-rendered form hosts, and returning HTML instead of JSON.
+description: Use when building Heimdall forms, including traditional and interactive validation flows, PayloadFromClosestForm, multipart encoding, file inputs and uploads, IFormFile binding, request limits, SwapNone, status regions, server validation, and returned HTML.
 ---
 
 # Heimdall Forms
@@ -124,6 +124,82 @@ input.Heimdall()
 
 The action should normalize and validate the submitted values, then return the form or the relevant fragment.
 
+## File Uploads
+
+Use normal HTML file inputs. Add multipart encoding to make the form contract explicit:
+
+```csharp
+return FluentHtml.Form(form =>
+{
+    form.Id("profile-upload");
+    form.MultipartFormData();
+    form.Heimdall()
+        .Submit("profile.save")
+        .PayloadFromClosestForm()
+        .Target("#upload-result")
+        .SwapInner()
+        .Disable();
+
+    form.Input(Html.InputType.text, input => input
+        .Name("DisplayName")
+        .Required());
+
+    form.Input(Html.InputType.file, input => input
+        .Name("avatar")
+        .Accept("image/png", "image/jpeg")
+        .Required());
+
+    form.Button(button => button.Type("submit").Text("Upload"));
+});
+```
+
+The runtime automatically sends forms containing file inputs as `multipart/form-data`. Forms without files continue to use JSON. Programmatic callers can pass a browser `FormData` instance:
+
+```javascript
+const data = new FormData(document.querySelector("#profile-upload"));
+await Heimdall.invoke("profile.save", data, {
+  target: "#upload-result",
+  swap: "inner"
+});
+```
+
+Bind normal payload fields and files together:
+
+```csharp
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+[RequestSizeLimit(10_000_000)]
+[RequestFormLimits(MultipartBodyLengthLimit = 8_000_000)]
+[ContentInvocation("profile.save")]
+public static IHtmlContent Save(
+    [FromForm] ProfileRequest request,
+    [FromForm(Name = "avatar")] IFormFile avatar)
+{
+    return UploadResult.Render(request.DisplayName, avatar.Length);
+}
+```
+
+Supported file shapes include `IFormFile`, `IFormFileCollection`, `IFormFile[]`, and common generic file collection interfaces. File parameters bind by parameter or `[FromForm(Name = ...)]` name.
+
+`[FromForm]` on the payload is optional for an ordinary multipart request, but it makes the form-only contract explicit and prevents a registered payload type from being mistaken for a service. A form-only payload rejects JSON with `415 Unsupported Media Type`.
+
+ASP.NET Core's native `[RequestSizeLimit]`, `[DisableRequestSizeLimit]`, and `[RequestFormLimits]` metadata are honored on an action method or declaring type. Method metadata overrides type metadata; configured `FormOptions` remain the baseline. Limit violations return `413 Payload Too Large`.
+
+Uploads use ASP.NET Core's buffered `IFormFile` pipeline. For large streaming uploads, use a dedicated endpoint instead of a Heimdall content action.
+
+## Upload Security
+
+- Keep finite request and multipart limits.
+- Treat `FileName` and `ContentType` as untrusted metadata.
+- Validate file signatures/content, not only extensions or MIME labels.
+- Generate storage names instead of using the supplied file name.
+- Store uploads outside executable/static roots unless serving is intentional and controlled.
+- Apply authorization and malware scanning appropriate to the application.
+- Leave room for ordinary fields and multipart framing when setting request limits.
+
+With `queue-latest`, form fields and selected files are snapshotted when the submit occurs. Later edits do not change the queued upload.
+
 ## Validation Loop
 
 1. The browser sends values from the closest form.
@@ -142,4 +218,6 @@ The action should normalize and validate the submitted values, then return the f
 - Return HTML for success and error states.
 - Use `SwapNone()` when the action will return directives that choose targets.
 - Use `SwapOuter()` when re-rendering the full form host.
+- Use `MultipartFormData()` and `Html.InputType.file` for explicit file-upload markup.
+- Use native ASP.NET Core form and request-size metadata for upload limits.
 - Do not return JSON and ask the client to render validation UI.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Heimdall Mutations"
+  short_description: "Mutate existing Heimdall DOM nodes"
+  default_prompt: "Use $heimdall-mutations to update existing DOM attributes, classes, and state without replacing nodes."

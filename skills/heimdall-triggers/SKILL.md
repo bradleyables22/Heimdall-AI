@@ -1,6 +1,6 @@
 ---
 name: heimdall-triggers
-description: Use when choosing Heimdall triggers for interactions, including load, click, change, input, submit, keydown, blur, hover, visible, scroll, trigger attributes, event-to-action mapping, and trigger debugging.
+description: Use when choosing Heimdall triggers for interactions, including load, click, change, input, submit, keydown, blur, hover, element visibility, document visibility, online connectivity, scroll, the client-only offline event, trigger attributes, event-to-action mapping, and trigger debugging.
 ---
 
 # Heimdall Triggers
@@ -25,6 +25,8 @@ Prefer the explicit `On*` helpers when matching documentation examples. The shor
 .OnBlur("field.validate")
 .OnHover("card.preview")
 .OnVisible("feed.more")
+.OnDocumentVisible("dashboard.refresh")
+.OnOnline("connection.restore")
 .OnScroll("feed.more")
 
 .Load("feed.initial")
@@ -36,6 +38,8 @@ Prefer the explicit `On*` helpers when matching documentation examples. The shor
 .Blur("field.validate")
 .Hover("card.preview")
 .Visible("feed.more")
+.DocumentVisible("dashboard.refresh")
+.Online("connection.restore")
 .Scroll("feed.more")
 ```
 
@@ -51,6 +55,8 @@ HeimdallHtml.OnKeyDown("command.enter")
 HeimdallHtml.OnBlur("field.validate")
 HeimdallHtml.OnHover("card.preview")
 HeimdallHtml.OnVisible("feed.more")
+HeimdallHtml.OnDocumentVisible("dashboard.refresh")
+HeimdallHtml.OnOnline("connection.restore")
 HeimdallHtml.OnScroll("feed.more")
 ```
 
@@ -66,6 +72,8 @@ heimdall-content-keydown="command.enter"
 heimdall-content-blur="field.validate"
 heimdall-content-hover="card.preview"
 heimdall-content-visible="feed.more"
+heimdall-content-document-visible="dashboard.refresh"
+heimdall-content-online="connection.restore"
 heimdall-content-scroll="feed.more"
 ```
 
@@ -112,6 +120,38 @@ sentinel.Heimdall()
     .SwapBeforeEnd();
 ```
 
+Document visible:
+
+```csharp
+dashboard.Heimdall()
+    .DocumentVisible("dashboard.refresh")
+    .PayloadEmptyObject()
+    .Target("#dashboard")
+    .SwapInner();
+```
+
+`DocumentVisible` runs on each hidden-to-visible document transition. It does not run during initial boot; combine it with `Load` when both initial and return-time refreshes are required.
+
+Online:
+
+```csharp
+connectionPanel.Heimdall()
+    .Online("connection.restore")
+    .PayloadEmptyObject()
+    .Target("#connection-panel")
+    .SwapInner();
+```
+
+An online browser event indicates that connectivity may be available again; it does not guarantee that the application server is reachable. Normal request error handling still applies.
+
+Offline is intentionally client-only and never invokes or queues a content action:
+
+```javascript
+document.addEventListener("heimdall:offline", event => {
+    console.log(event.detail.online); // false
+});
+```
+
 ## Guidance
 
 - Use `Click` for buttons and explicit commands.
@@ -119,7 +159,10 @@ sentinel.Heimdall()
 - Use `Input` for live search, validation, and previews.
 - Use `Change` for lower-frequency field or filter changes.
 - Use `Load` for initial fragment loading.
-- Use `Visible` for reveal/load-more patterns; visible triggers are observed with `IntersectionObserver` and default to firing once unless `.VisibleOnce(false)` / `heimdall-visible-once="false"` is set.
+- Use `Visible` for element reveal/load-more patterns; visible triggers are observed with `IntersectionObserver` and default to firing once unless `.VisibleOnce(false)` / `heimdall-visible-once="false"` is set.
+- Use `DocumentVisible` to refresh when a user returns to a hidden tab. It is document visibility, not element visibility.
+- Use `Online` to attempt a refresh after the browser reports restored connectivity.
+- Handle `heimdall:offline` locally for offline UI. Do not expect a server invocation or deferred action queue.
 - Use `Scroll` only when scroll position itself matters.
 - Use `KeyDown` with `.Key(...)` for keyboard commands.
 - Use `.DebounceMs(...)` for noisy `Input` or `Change` triggers; input has a runtime default debounce.

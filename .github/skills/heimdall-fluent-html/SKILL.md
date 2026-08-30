@@ -1,6 +1,6 @@
 ---
 name: heimdall-fluent-html
-description: Use when generating or editing Heimdall server-rendered markup with FluentHtml or Html, including IHtmlContent render functions, ToHtmlString output, native command/commandfor helpers, element builders, attributes, forms, tables, text encoding, Raw usage, and Heimdall behavior extension points.
+description: Use when generating or editing Heimdall server-rendered markup with FluentHtml or Html, including IHtmlContent render functions, ToHtmlString output, native command/commandfor helpers, element builders, attributes, multipart forms and file inputs, local-time markup, tables, text encoding, Raw usage, and Heimdall behavior extension points.
 ---
 
 # Heimdall FluentHtml
@@ -70,6 +70,7 @@ Use these methods instead of string concatenation:
 ```csharp
 b.Id("orders")
 b.Class("container", "py-4")
+b.Lang("en-US")
 b.Attr("data-kind", "order")
 b.Data("order-id", order.Id.ToString())
 b.Aria("label", "Orders")
@@ -109,6 +110,15 @@ input.Required();
 input.Disabled(isBusy);
 input.Checked(isSelected);
 ```
+
+Use `.Lang(...)` when an element establishes a language for its content. It emits the native HTML `lang` attribute and accepts any valid BCP 47 language tag:
+
+```csharp
+html.Lang("en");
+panel.Lang("fr-FR");
+```
+
+The browser-local time runtime resolves language from the localized element's nearest `lang` attribute, then the document language, then the browser locale.
 
 Form attributes:
 
@@ -214,7 +224,37 @@ FluentHtml.Form(form =>
 });
 ```
 
-Known input types use `Html.InputType`, including `text`, `email`, `password`, `number`, `date`, `search`, `checkbox`, `radio`, `hidden`, and `datetime_local`.
+Known input types use `Html.InputType`, including `text`, `email`, `password`, `number`, `date`, `search`, `checkbox`, `radio`, `hidden`, `file`, and `datetime_local`.
+
+For a file upload, add multipart encoding and use the typed file input:
+
+```csharp
+FluentHtml.Form(form =>
+{
+    form.MultipartFormData();
+    form.Heimdall()
+        .Submit("profile.upload")
+        .PayloadFromClosestForm()
+        .Target("#upload-result");
+
+    form.Input(Html.InputType.file, input => input
+        .Name("avatar")
+        .Accept("image/png", "image/jpeg")
+        .Required());
+});
+```
+
+Use the focused `heimdall-forms` skill for multipart binding, request limits, and upload security.
+
+## Browser-Local Time
+
+Any element builder can display an absolute instant in the browser's local timezone:
+
+```csharp
+span.LocalizeTime(createdAt, "MMM d, yyyy 'at' h:mm tt");
+```
+
+The helper emits a server fallback and runtime attributes; it does not require a particular HTML tag or a server round trip. Use the focused `heimdall-time-localization` skill for supported formats, lifecycle hooks, and absolute-time rules.
 
 ## Lists And Tables
 
@@ -270,7 +310,30 @@ Prefer `FluentHtml` for larger markup.
 
 ## Heimdall Behavior Extension
 
-Call `.Heimdall()` on an element builder to add Heimdall behavior attributes:
+Prefer the scoped callback overload when HTML configuration continues after Heimdall behavior. The callback temporarily exposes the Heimdall builder and then returns the original element builder:
+
+```csharp
+button
+    .Id("save")
+    .Heimdall(heimdall => heimdall
+        .Click("orders.save")
+        .Target("#orders")
+        .SwapOuter())
+    .Class("btn", "btn-primary")
+    .Text("Save");
+```
+
+You can transition between the HTML and Heimdall builders more than once. Attributes are emitted in the order in which the methods run:
+
+```csharp
+button
+    .Heimdall(h => h.Click("orders.save"))
+    .Class("btn")
+    .Heimdall(h => h.Disable())
+    .Text("Save");
+```
+
+The original no-argument `.Heimdall()` transition remains available when the rest of the chain only needs Heimdall methods:
 
 ```csharp
 button.Heimdall()
@@ -282,12 +345,20 @@ button.Heimdall()
 
 Add `.SyncReplace("orders")`, `.SyncDrop()`, `.SyncQueueLatest()`, or `.SyncParallel()` only when requests need explicit overlap coordination.
 
-Call `.Heimdall()` on a fragment builder to add response directives:
+The callback overload also returns the original fragment builder, so response directives can be placed naturally among ordinary fragment content:
 
 ```csharp
 FluentHtml.Fragment(fragment =>
 {
     fragment.Add(MainResult.Render());
-    fragment.Heimdall().Invocation("#sidebar", payload: Sidebar.Render());
+    fragment.Heimdall(h => h.Invocation(
+        "#sidebar",
+        payload: Sidebar.Render()));
+    fragment.Add(Footer.Render());
+    fragment.Heimdall(h => h.Mutate("#status", mutation => mutation
+        .RemoveClass("loading")
+        .AddClass("ready")));
 });
 ```
+
+Use the focused `heimdall-mutations` skill for in-place attribute, class, and state updates.

@@ -1,6 +1,6 @@
 ---
 name: heimdall-payloads
-description: Use when choosing Heimdall payload sources and binding data to content actions, including closest-form, inline object payloads, empty payloads, closest-state, selector/self/ref payloads, ContentPayload, and payload-source debugging.
+description: Use when choosing Heimdall payload sources and binding data to content actions, including closest-form JSON or multipart data, file inputs and FormData, inline objects, empty payloads, closest-state, selector/self/ref payloads, ContentPayload, FromForm, and payload-source debugging.
 ---
 
 # Heimdall Payloads
@@ -88,9 +88,37 @@ public static IHtmlContent Archive([ContentPayload] ArchiveOrderRequest request)
 
 The payload parameter may be marked with `[ContentPayload]`. Avoid ambiguous multiple body-like parameters.
 
+## Multipart Payloads
+
+A closest form containing file inputs is sent as `multipart/form-data`; a form without files remains JSON. The runtime preserves field names and file values through browser `FormData`.
+
+```csharp
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+[ContentInvocation("documents.upload")]
+public static IHtmlContent Upload(
+    [FromForm] DocumentRequest request,
+    [FromForm(Name = "document")] IFormFile file)
+{
+    return DocumentStatus.Render(request.Title, file.Length);
+}
+```
+
+Programmatic invocation also accepts `FormData` directly:
+
+```javascript
+await Heimdall.invoke("documents.upload", new FormData(form), {
+  target: "#document-status"
+});
+```
+
+Use `[FromForm]` when the action should reject JSON and require multipart/form data. Use the focused `heimdall-forms` skill for supported file parameter shapes, request limits, and storage security.
+
 ## Guidance
 
 - Use closest form for form fields.
+- Let closest forms with files use multipart payloads; do not serialize `File` objects to JSON.
 - Use inline payloads for simple IDs and stable values already known at render time.
 - Use empty payloads for refresh/reload actions.
 - Use closest state for small server-rendered state objects.
